@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-let MongoURI ='mongodb://127.0.0.1:27017'
+let MongoURI = process.env.MONGO_URI;
 
 export const connectToDB = async()=>{
     try {

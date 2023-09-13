@@ -1,6 +1,6 @@
 import {app} from './app.js'
 import {connectToDB} from './data/database.js'
-const port = 5000;
+const port = process.env.PORT;
 
 connectToDB();
 
