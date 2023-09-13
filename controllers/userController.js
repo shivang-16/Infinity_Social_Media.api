@@ -38,30 +38,37 @@ export const register = async (req, res, next) => {
 };
 
 export const login = async (req, res, next) => {
-  try {
-    const { userName, password } = req.body;
-
-    let user = await User.findOne({ userName }).select("+password");
-
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found - Register first",
-      });
-    }
-
-    let isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      res.status(404).json({
-        success: false,
-        message: "Invalid password",
-      });
-    }
-    setCookie(user, res, "Login Successfully", 200);
-  } catch (error) {
-    console.log(error);
-  }
-};
+   try {
+     const { userName, password } = req.body;
+ 
+     let user = await User.findOne({ userName }).select("+password");
+ 
+     if (!user) {
+       return res.status(404).json({
+         success: false,
+         message: "User not found - Register first",
+       });
+     }
+ 
+     let isMatch = await bcrypt.compare(password, user.password);
+     if (!isMatch) {
+       return res.status(401).json({
+         success: false,
+         message: "Invalid password",
+       });
+     }
+ 
+     // Successful login
+     setCookie(user, res, "Login Successfully", 200);
+   } catch (error) {
+     console.log(error);
+     return res.status(500).json({
+       success: false,
+       message: "Server error",
+     });
+   }
+ };
+ 
 
 export const updateUser = async (req, res, next) => {
   try {
@@ -83,6 +90,10 @@ export const updateUser = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -105,6 +116,10 @@ export const getUserProfile = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -123,6 +138,10 @@ export const getAllUsers = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -136,6 +155,10 @@ export const logout = (req, res, next)=>{
          })  
    } catch (error) {
       console.log(error)
+      return res.status(500).json({
+         success: false,
+         message: "Server error",
+       });
    }
 }
 
@@ -155,5 +178,9 @@ export const deleteUser = async (req, res, next) => {
      });
    } catch (error) {
      console.log(error);
+     return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
    }
  };
