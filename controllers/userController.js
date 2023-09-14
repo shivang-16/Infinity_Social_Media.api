@@ -38,37 +38,36 @@ export const register = async (req, res, next) => {
 };
 
 export const login = async (req, res, next) => {
-   try {
-     const { userName, password } = req.body;
- 
-     let user = await User.findOne({ userName }).select("+password");
- 
-     if (!user) {
-       return res.status(404).json({
-         success: false,
-         message: "User not found - Register first",
-       });
-     }
- 
-     let isMatch = await bcrypt.compare(password, user.password);
-     if (!isMatch) {
-       return res.status(401).json({
-         success: false,
-         message: "Invalid password",
-       });
-     }
- 
-     // Successful login
-     setCookie(user, res, "Login Successfully", 200);
-   } catch (error) {
-     console.log(error);
-     return res.status(500).json({
-       success: false,
-       message: "Server error",
-     });
-   }
- };
- 
+  try {
+    const { userName, password } = req.body;
+
+    let user = await User.findOne({ userName }).select("+password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found - Register first",
+      });
+    }
+
+    let isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+
+    // Successful login
+    setCookie(user, res, "Login Successfully", 200);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
 
 export const updateUser = async (req, res, next) => {
   try {
@@ -96,7 +95,6 @@ export const updateUser = async (req, res, next) => {
     });
   }
 };
-
 
 export const getUserProfile = async (req, res, next) => {
   try {
@@ -145,42 +143,45 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const logout = (req, res, next)=>{
-   try {
-         res.status(200).cookie('token', "", {
-            expires: new Date(Date.now())
-         }).json({
-            success: true,
-            message: "Logout Successfull"
-         })  
-   } catch (error) {
-      console.log(error)
-      return res.status(500).json({
-         success: false,
-         message: "Server error",
-       });
-   }
-}
-
-export const deleteUser = async (req, res, next) => {
-   try {
-     const user = await User.findById(req.params.id);
-     if (!user) {
-       res.status(404).json({
-         success: false,
-         message: "user not found",
-       });
-     }
-     await user.deleteOne();
-     res.status(200).json({
-       success: true,
-       message: "user deleted succesfully",
-     });
-   } catch (error) {
-     console.log(error);
-     return res.status(500).json({
+export const logout = (req, res, next) => {
+  try {
+    res
+      .status(200)
+      .cookie("token", "", {
+        expires: new Date(Date.now()),
+      })
+      .json({
+        success: true,
+        message: "Logout Successfull",
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       success: false,
       message: "Server error",
     });
-   }
- };
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "user not found",
+      });
+    }
+    await user.deleteOne();
+    res.status(200).json({
+      success: true,
+      message: "user deleted succesfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};

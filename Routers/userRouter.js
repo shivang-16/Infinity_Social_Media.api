@@ -19,5 +19,4 @@ router.route('/:id').put(updateUser).delete(deleteUser)
 
 
 
-
 export default router
