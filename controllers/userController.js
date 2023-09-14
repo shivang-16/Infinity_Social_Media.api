@@ -1,39 +1,46 @@
 import { User } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { setCookie } from "../utils/features.js";
+import { Post } from "../models/postModel.js";
 
 export const register = async (req, res, next) => {
   try {
     const { name, userName, email, password } = req.body;
     let userEmail = await User.findOne({ email });
-
+     
     if (userEmail) {
-      res.status(404).json({
+      return res.status(400).json({
         success: false,
-        message: "Email already exist",
+        message: "Email already exists",
       });
     }
 
     let userWithName = await User.findOne({ userName });
 
     if (userWithName) {
-      res.status(404).json({
+      return res.status(400).json({
         success: false,
-        message: "Username already exist",
+        message: "Username already exists",
       });
     }
-
+    
+    // req.post = await Post.findById(_id)
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
       userName,
       email,
       password: hashedPassword,
+      avatar:{public_id: 'sample_id', url: "sample_url" },
+      // post: req.post
     });
 
     setCookie(user, res, "Registered Successfully", 201);
   } catch (error) {
-    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -89,10 +96,7 @@ export const updateUser = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    
   }
 };
 
@@ -179,9 +183,6 @@ export const deleteUser = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    
   }
 };

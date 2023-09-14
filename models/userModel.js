@@ -12,6 +12,10 @@ const userSchema = new Schema({
         required:true,
         unique: true,
     },
+    avatar:{
+      public_id: String,
+      url: String
+    },
     email: {
         type: String,
         required:true,
@@ -25,6 +29,25 @@ const userSchema = new Schema({
     description:{
        type: String,
     },
+    posts:[
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Post"
+        }
+    ],
+   
+    followers:[
+        {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: "Post"
+        }
+    ], 
+    following:[
+        {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: "Post"
+        }
+    ],
     createdAt:{
         type: Date,
         default: Date.now

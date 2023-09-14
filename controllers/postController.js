@@ -1,10 +1,10 @@
 import { Post } from "../models/postModel.js";
-
+import { User } from "../models/userModel.js";
 export const createPost = async(req, res, next)=>{
     try {
         const {caption} = req.body;
      
-    await Post.create({
+    const post = await Post.create({
         caption, 
         image:{
             public_id: "req.body.public_id",
@@ -12,6 +12,13 @@ export const createPost = async(req, res, next)=>{
         },
         owner: req.user,
     })
+    
+    //pushing the post into the user data
+    const user = await User.findById(req.user._id);
+    user.posts.push(post._id);
+
+    await user.save(); 
+
      res.status(201).json({
         success: true,
         message: 'Post added successfully',
@@ -19,7 +26,7 @@ export const createPost = async(req, res, next)=>{
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Internal Server Error"
+            message: error.message
         })
     }   
 }
@@ -49,10 +56,33 @@ export const getAllPost = async(req, res, next)=>{
 
 }
 
+export const editPost = async(req, res, next)=>{
+    try {
+        
+
+        let post = await Post.findById(req.params.id);
+         if(!post) {
+        res.status(400).json({
+            success: false,
+            message: "Invalid request"
+        })
+    }
+       const {caption} = req.body;
+       post = await Post.updateOne({caption});
+        res.status(200).json({
+            success:true,
+            message: "Post updated successfull"
+        })
+
+    } catch (error) {
+       console.log(error)
+    }
+}
+
 export const deletePost = async(req, res, next)=>{
 
    try {
-    let post = Post.findById(req.params.id);
+    let post = await Post.findById(req.params.id);
     if(!post) {
         res.status(400).json({
             success: false,
@@ -66,10 +96,7 @@ export const deletePost = async(req, res, next)=>{
         message: "Post deleted Successfully"
     })
    } catch (error) {
-    res.status(500).json({
-        success: false,
-        message: "Server Error"
-    })
+     console.log(error)
    }
 
 }
