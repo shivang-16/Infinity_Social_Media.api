@@ -80,7 +80,7 @@ export const updateUser = async (req, res, next) => {
   try {
     let user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "user not found",
       });
@@ -106,7 +106,7 @@ export const getUserProfile = async (req, res, next) => {
     console.log(username);
     const user = await User.findOne({ userName: username });
     if (!user) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "User not found",
       });
@@ -129,7 +129,7 @@ export const getAllUsers = async (req, res, next) => {
   try {
     let users = await User.find();
     if (!users) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "No Users found",
       });
@@ -171,7 +171,7 @@ export const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).json({
+     return res.status(404).json({
         success: false,
         message: "user not found",
       });

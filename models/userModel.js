@@ -38,14 +38,14 @@ const userSchema = new Schema({
    
     followers:[
         {
-        //   type: mongoose.Schema.Types.ObjectId,
-        //   ref: "Post"
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User"
         }
     ], 
     following:[
         {
-        //   type: mongoose.Schema.Types.ObjectId,
-        //   ref: "Post"
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User"
         }
     ],
     createdAt:{

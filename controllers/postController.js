@@ -16,7 +16,6 @@ export const createPost = async(req, res, next)=>{
     //pushing the post into the user data
     const user = await User.findById(req.user._id);
     user.posts.push(post._id);
-
     await user.save(); 
 
      res.status(201).json({
@@ -37,7 +36,7 @@ export const getAllPost = async(req, res, next)=>{
 
     const post = await Post.find()
     if(!post){
-        res.status(404).json({
+        return res.status(404).json({
             success: false,
             message: "Error in fetching post"
         })
@@ -48,7 +47,7 @@ export const getAllPost = async(req, res, next)=>{
         post,
     })
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error"
         })
@@ -62,7 +61,7 @@ export const editPost = async(req, res, next)=>{
 
         let post = await Post.findById(req.params.id);
          if(!post) {
-        res.status(400).json({
+         return res.status(400).json({
             success: false,
             message: "Invalid request"
         })
@@ -75,8 +74,11 @@ export const editPost = async(req, res, next)=>{
         })
 
     } catch (error) {
-       console.log(error)
-    }
+       return res.status(500).json({
+        success: false,
+        message: error.message
+      })
+   }
 }
 
 export const deletePost = async(req, res, next)=>{
@@ -84,7 +86,7 @@ export const deletePost = async(req, res, next)=>{
    try {
     let post = await Post.findById(req.params.id);
     if(!post) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: "Invalid request"
         })
@@ -96,7 +98,11 @@ export const deletePost = async(req, res, next)=>{
         message: "Post deleted Successfully"
     })
    } catch (error) {
-     console.log(error)
+    return res.status(500).json({
+        success: false,
+        message: error.message
+      })
    }
+
 
 }
