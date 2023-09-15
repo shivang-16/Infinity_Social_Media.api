@@ -57,8 +57,6 @@ export const getAllPost = async(req, res, next)=>{
 
 export const editPost = async(req, res, next)=>{
     try {
-        
-
         let post = await Post.findById(req.params.id);
          if(!post) {
          return res.status(400).json({
@@ -84,7 +82,7 @@ export const editPost = async(req, res, next)=>{
 export const deletePost = async(req, res, next)=>{
 
    try {
-    let post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id);
     if(!post) {
         return res.status(400).json({
             success: false,
@@ -103,6 +101,75 @@ export const deletePost = async(req, res, next)=>{
         message: error.message
       })
    }
-
-
 }
+export const likes = async (req, res, next) => {
+    try {
+      let post = await Post.findById(req.params.id);
+      if (!post) {
+        return res.status(400).json({
+          success: false,
+          message: "Bad request",
+        });
+      }
+  
+      let user = await User.findById(req.user._id);
+  
+      // Check if the user ID is in the post.likes array
+      const isLiked = post.likes.includes(user._id.toString());
+  
+      if (isLiked) {
+        // User has already liked the post, so remove their ID
+        post.likes = post.likes.filter(
+          (likedUserId) => likedUserId.toString() !== user._id.toString()
+        );
+      } else {
+        // User has not liked the post, so add their ID
+        post.likes.push(user._id);
+      }
+  
+      await post.save();
+      res.status(200).json({
+        success: true,
+        message: isLiked ? "Post unliked" : "Post liked",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
+
+export const comments = async(req, res, next)=>{
+    
+    try {
+        const post = await Post.findById(req.params.id)
+        if (!post) {
+            return res.status(400).json({
+              success: false,
+              message: "Bad request",
+            });
+          }
+    
+          const { comment} = req.body; 
+
+          post.comments.push({
+            user: req.user._id,
+            comment,
+          });
+          
+          await post.save();
+
+          res.status(200).json({
+            success: true,
+            message: "comment added succesfully"
+          })
+          
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+          });
+    }
+}
+  

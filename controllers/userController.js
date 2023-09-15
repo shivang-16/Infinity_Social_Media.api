@@ -1,7 +1,6 @@
 import { User } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { setCookie } from "../utils/features.js";
-import { Post } from "../models/postModel.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -24,7 +23,6 @@ export const register = async (req, res, next) => {
       });
     }
     
-    // req.post = await Post.findById(_id)
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
@@ -32,7 +30,6 @@ export const register = async (req, res, next) => {
       email,
       password: hashedPassword,
       avatar:{public_id: 'sample_id', url: "sample_url" },
-      // post: req.post
     });
 
     setCookie(user, res, "Registered Successfully", 201);
