@@ -1,6 +1,6 @@
 import { User } from "../models/userModel.js";
 
-export const following = async (req, res, next) => {
+export const follow = async (req, res, next) => {
   try {
     const userToFollow = await User.findById(req.params.id);
 

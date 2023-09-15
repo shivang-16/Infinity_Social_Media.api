@@ -1,9 +1,9 @@
 import express from 'express'
-import { following } from '../controllers/following.js';
+import { follow } from '../controllers/follow.js';
 import { isAuthenticated } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.route('/:id').post(isAuthenticated, following)
+router.route('/:id').post(isAuthenticated, follow)
 
 export default router
