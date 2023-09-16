@@ -6,7 +6,7 @@ export const register = async (req, res, next) => {
   try {
     const { name, userName, email, password } = req.body;
     let userEmail = await User.findOne({ email });
-     
+
     if (userEmail) {
       return res.status(400).json({
         success: false,
@@ -22,14 +22,14 @@ export const register = async (req, res, next) => {
         message: "Username already exists",
       });
     }
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
       userName,
       email,
       password: hashedPassword,
-      avatar:{public_id: 'sample_id', url: "sample_url" },
+      avatar: { public_id: "sample_id", url: "sample_url" },
     });
 
     setCookie(user, res, "Registered Successfully", 201);
@@ -93,7 +93,6 @@ export const updateUser = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    
   }
 };
 
@@ -124,21 +123,21 @@ export const getUserProfile = async (req, res, next) => {
 };
 
 //get the profile of logined user
-export const getMyProfile = async(req, res, next)=>{
-     try {
-        let user = await User.findById(req.user)
-        res.status(200).json({
-          success: true,
-          message: 'Profile fetched',
-          user,
-        })
-     } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: error.message
-      })
-     }
-}
+export const getMyProfile = async (req, res, next) => {
+  try {
+    let user = await User.findById(req.user);
+    res.status(200).json({
+      success: true,
+      message: "Profile fetched",
+      user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const getAllUsers = async (req, res, next) => {
   try {
@@ -186,7 +185,7 @@ export const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-     return res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "user not found",
       });
@@ -198,6 +197,5 @@ export const deleteUser = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    
   }
 };
