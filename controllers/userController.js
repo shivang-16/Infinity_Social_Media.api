@@ -97,6 +97,7 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+//to get any user profile using its username
 export const getUserProfile = async (req, res, next) => {
   try {
     const username = req.params.userName;
@@ -121,6 +122,23 @@ export const getUserProfile = async (req, res, next) => {
     });
   }
 };
+
+//get the profile of logined user
+export const getMyProfile = async(req, res, next)=>{
+     try {
+        let user = await User.findById(req.user)
+        res.status(200).json({
+          success: true,
+          message: 'Profile fetched',
+          user,
+        })
+     } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      })
+     }
+}
 
 export const getAllUsers = async (req, res, next) => {
   try {

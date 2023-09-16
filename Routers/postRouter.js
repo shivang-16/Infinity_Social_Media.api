@@ -1,10 +1,6 @@
 import express from 'express'
-import { createPost } from '../controllers/postController.js'
-import { getAllPost } from '../controllers/postController.js'
-import { editPost } from '../controllers/postController.js'
-import { deletePost } from '../controllers/postController.js'
-import { likes } from '../controllers/postController.js'
-import { comments } from '../controllers/postController.js'
+import { createPost, getAllPost, editPost, deletePost, likes, comments } from '../controllers/postController.js'
+
 import { isAuthenticated } from '../middlewares/auth.js'
 
 const router = express.Router()
