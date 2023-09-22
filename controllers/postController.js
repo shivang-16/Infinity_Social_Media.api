@@ -68,6 +68,7 @@ export const editPost = async (req, res, next) => {
       message: "Post updated successfull",
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message,

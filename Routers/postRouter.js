@@ -22,3 +22,4 @@ router.route("/likes/:id").post(isAuthenticated, likes);
 router.route("/comments/:id").post(isAuthenticated, comments);
 
 export default router;
+
