@@ -30,6 +30,7 @@ export const createPost = async (req, res, next) => {
   }
 };
 
+
 export const getAllPost = async (req, res, next) => {
   try {
     const post = await Post.find();
@@ -136,6 +137,41 @@ export const likes = async (req, res, next) => {
   }
 };
 
+
+export const bookmarks = async(req, res, next)=>{
+  try {
+    let bookmarkedPost = await Post.findById(req.params.id);
+    if(!bookmarkedPost){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request"
+      })
+    }
+
+    let user = await User.findById(req.user._id)
+    const isBookmarked = user.bookmarks.includes(bookmarkedPost._id.toString())
+    if(isBookmarked){
+       user.bookmarks = user.bookmarks.filter((bookmarkedPostid)=>{
+              bookmarkedPostid.toString() !== user._id.toString();
+       })
+    }
+    else{
+      user.bookmarks.push(bookmarkedPost._id)
+    }
+    await user.save()
+    res.status(201).json({
+      success: true,
+      message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked"
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
 export const comments = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -167,4 +203,28 @@ export const comments = async (req, res, next) => {
   }
 };
 
-export const deleteComment = async (req, res, next) => {};
+export const deleteComment = async (req, res, next) => {
+  try {
+    const comment = await Post.comments(req.param.id)
+    if(!comment){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request"
+      })
+    }
+    
+    comment.deleteOne()
+    await comment.save()
+    res.status(200).json({
+      success: true,
+      message: "comment deleted successfully"
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    }) 
+  }
+ 
+  
+};

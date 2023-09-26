@@ -35,6 +35,13 @@ const userSchema = new Schema({
       ref: "Post",
     },
   ],
+  
+  bookmarks: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
 
   followers: [
     {
