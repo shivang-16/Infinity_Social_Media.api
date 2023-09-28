@@ -68,7 +68,7 @@ export const login = async (req, res, next) => {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: error.message,
     });
   }
 };
@@ -96,31 +96,6 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-//to get any user profile using its username
-export const getUserProfile = async (req, res, next) => {
-  try {
-    const username = req.params.userName;
-    console.log(username);
-    const user = await User.findOne({ userName: username });
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
-  }
-};
 
 //get the profile of logined user
 export const getMyProfile = async (req, res, next) => {
@@ -141,22 +116,44 @@ export const getMyProfile = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    let users = await User.find();
+    const {name, userName} = req.query
+    const queryObject ={}
+
+    if(name) {
+      //full search functionality using regex
+      queryObject.name =  {$regex: name, $options: "i"}
+    }
+    if(userName){
+      queryObject.userName= {$regex: userName, $options: "i"}
+    }
+
+    let apiData = User.find(queryObject)
+    let page = req.query.page || 1;
+    let limit = req.query.limit || 2;
+    
+    //pagination formula
+    let skip = (page-1) * limit;
+    apiData = apiData.skip(skip).limit(limit)
+
+
+    let users = await apiData.sort("-name");
     if (!users) {
       return res.status(404).json({
         success: false,
         message: "No Users found",
       });
     }
+
     res.status(200).json({
       success: true,
       users,
+      length: users.length
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: error.message,
     });
   }
 };
@@ -176,7 +173,7 @@ export const logout = (req, res, next) => {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: error.message,
     });
   }
 };

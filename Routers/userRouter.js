@@ -5,7 +5,6 @@ import {
   updateUser,
   logout,
   deleteUser,
-  getUserProfile,
   getAllUsers,
   getMyProfile,
 } from "../controllers/userController.js";
@@ -18,7 +17,6 @@ router.post("/login", login);
 router.get("/myProfile", isAuthenticated, getMyProfile);
 router.post("/logout", isAuthenticated, logout);
 router.get("/all", getAllUsers);
-router.route("/profile/:userName").get(getUserProfile);
 router.route("/:id").put(updateUser).delete(deleteUser);
 
 export default router;
