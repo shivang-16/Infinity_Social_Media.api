@@ -2,9 +2,10 @@ import { User } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { setCookie } from "../utils/features.js";
 
+
 export const register = async (req, res, next) => {
   try {
-    const { name, userName, email, password } = req.body;
+    const { name, userName, phone, email, password } = req.body;
     let userEmail = await User.findOne({ email });
 
     if (userEmail) {
@@ -23,10 +24,20 @@ export const register = async (req, res, next) => {
       });
     }
 
+    let phoneNumber = await User.findOne({ phone });
+
+    if (phoneNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone Number already exists",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
       userName,
+      phone,
       email,
       password: hashedPassword,
       avatar: { public_id: "sample_id", url: "sample_url" },
@@ -43,9 +54,22 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { userName, password } = req.body;
+    const { loginIdentifier, password } = req.body;
 
-    let user = await User.findOne({ userName }).select("+password");
+    // Check if the loginIdentifier contains "@" to determine if it's an email
+    let user;
+    if (loginIdentifier.includes("@")) {
+      user = await User.findOne({ email: loginIdentifier }).select("+password");
+    } else {
+      // Check if it's a valid phone number format (you may need to adjust this regex)
+      const phoneRegex = /^\d{10}$/;
+      if (phoneRegex.test(loginIdentifier)) {
+        user = await User.findOne({ phone: loginIdentifier }).select("+password");
+      } else {
+        // If it's not an email or phone, assume it's a username
+        user = await User.findOne({ userName: loginIdentifier }).select("+password");
+      }
+    }
 
     if (!user) {
       return res.status(404).json({
