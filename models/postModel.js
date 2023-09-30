@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    },
+    }
   ],
   comments: [
     {
@@ -36,6 +36,14 @@ const postSchema = new mongoose.Schema({
       },
     },
   ],
+  likesCount: {
+    type: Number,
+    default: 0, // Default to 0 when a new post is created
+  },
+  commentsCount: {
+    type: Number,
+    default: 0, // Default to 0 when a new post is created
+  },
 });
 
 export const Post = mongoose.model("Post", postSchema);

@@ -12,9 +12,11 @@ export const createPost = async (req, res, next) => {
       },
       owner: req.user,
     });
+    console.log('req.user:', req.user);
+
 
     //pushing the post into the user data
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user);
     user.posts.push(post._id);
     await user.save();
 
@@ -119,11 +121,13 @@ export const likes = async (req, res, next) => {
       post.likes = post.likes.filter(
         (likedUserId) => likedUserId.toString() !== user._id.toString(),
       );
+      post.likesCount--
     } else {
       // User has not liked the post, so add their ID
       post.likes.push(user._id);
+      post.likesCount++
     }
-
+  
     await post.save();
     res.status(200).json({
       success: true,
@@ -188,7 +192,7 @@ export const comments = async (req, res, next) => {
       user: req.user._id,
       comment,
     });
-
+     post.commentsCount++;
     await post.save();
 
     res.status(200).json({
