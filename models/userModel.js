@@ -31,9 +31,13 @@ const userSchema = new Schema({
     required: true,
     default: false,
   },
-  description: {
-    type: String,
-  },
+  description: 
+    {
+      about: String,
+      dob: Date,
+      location: String,
+      link: String
+    },
   posts: [
     {
       type: mongoose.Schema.Types.ObjectId,

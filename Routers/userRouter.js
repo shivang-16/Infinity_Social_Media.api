@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   register,
   login,
@@ -7,12 +8,15 @@ import {
   deleteUser,
   getAllUsers,
   getMyProfile,
+  verifyOtp
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
 
+
 router.post("/register", register);
+router.post("/verify", verifyOtp)
 router.post("/login", login);
 router.get("/myProfile", isAuthenticated, getMyProfile);
 router.post("/logout", isAuthenticated, logout);

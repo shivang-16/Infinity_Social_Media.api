@@ -8,9 +8,10 @@ import { config } from "dotenv";
 export const app = express();
 
 config({
-  path: "./config.env",
+  path: "./data/config.env",
 });
-
+// console.log(process.env.TWILIO_ACCOUNT_SID)
+// console.log(process.env.JWT_SECRET)
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/v1/user", userRouter);

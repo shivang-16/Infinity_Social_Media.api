@@ -1,10 +1,19 @@
 import { User } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { setCookie } from "../utils/features.js";
+import twilio from 'twilio';
 
 
+
+
+let OTP, user;
 export const register = async (req, res, next) => {
   try {
+    //twilio authentication
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const client = twilio(accountSid, authToken);
+
     const { name, userName, phone, email, password } = req.body;
     let userEmail = await User.findOne({ email });
 
@@ -34,7 +43,23 @@ export const register = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
+
+    //sending the otp with the help of twilio
+    let digits ='0123456789'
+    OTP=''
+    for(let i=0; i<4; i++){
+        OTP += digits[Math.floor(Math.random()*10)]
+    }
+    const message = await client.messages.create({
+      body:`Your verification code is ${OTP}`,
+      to: phone,
+      messagingServiceSid: process.env.TWILIO_MESSAGING_SID,
+    });
+    console.log(`Message sent with SID: ${message.sid}`);
+
+
+    //creating user 
+     user = new User({
       name,
       userName,
       phone,
@@ -42,8 +67,11 @@ export const register = async (req, res, next) => {
       password: hashedPassword,
       avatar: { public_id: "sample_id", url: "sample_url" },
     });
-
-    setCookie(user, res, "Registered Successfully", 201);
+   res.status(200).json({
+    success:true,
+    message: `Otp sent to ${phone}`
+   })
+   
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -51,6 +79,29 @@ export const register = async (req, res, next) => {
     });
   }
 };
+
+export const verifyOtp = async(req, res, next)=>{
+  try {
+   const {otp} = req.body;
+   if(otp != OTP){
+       return res.status(400).json({
+           success:false,
+           message:"Invalid Otp"
+       })
+   } 
+
+   //if otp is correct then save the user in database
+  user.save()
+   setCookie(user, res, "Registered Successfully", 201);
+
+  } catch (error) {
+    return res.status(500).json({
+       success:false,
+       message: error.message
+    })   
+  }
+}
+
 
 export const login = async (req, res, next) => {
   try {
@@ -62,7 +113,7 @@ export const login = async (req, res, next) => {
       user = await User.findOne({ email: loginIdentifier }).select("+password");
     } else {
       // Check if it's a valid phone number format (you may need to adjust this regex)
-      const phoneRegex = /^\d{10}$/;
+      const phoneRegex = /^\d{12}$/;
       if (phoneRegex.test(loginIdentifier)) {
         user = await User.findOne({ phone: loginIdentifier }).select("+password");
       } else {
@@ -106,10 +157,15 @@ export const updateUser = async (req, res, next) => {
         message: "user not found",
       });
     }
-    const { name, description } = req.body;
+    const { name, about, dob, link, location } = req.body;
     user = await User.updateOne({
       name,
-      description,
+      description :{
+        about,
+        dob,
+        location,
+        link,
+      }
     });
     res.status(200).json({
       success: true,
