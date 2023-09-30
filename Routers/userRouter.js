@@ -20,7 +20,8 @@ router.post("/verify", verifyOtp)
 router.post("/login", login);
 router.get("/myProfile", isAuthenticated, getMyProfile);
 router.post("/logout", isAuthenticated, logout);
+router.patch("/update", isAuthenticated, updateUser);
+router.delete("/delete", isAuthenticated, deleteUser);
 router.get("/all", getAllUsers);
-router.route("/:id").put(updateUser).delete(deleteUser);
 
 export default router;

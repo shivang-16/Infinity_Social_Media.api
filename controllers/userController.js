@@ -1,9 +1,7 @@
 import { User } from "../models/userModel.js";
-import bcrypt from "bcrypt";
 import { setCookie } from "../utils/features.js";
+import bcrypt from "bcrypt";
 import twilio from 'twilio';
-
-
 
 
 let OTP, user;
@@ -150,29 +148,40 @@ export const login = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    let user = await User.findById(req.params.id);
+    const userId = req.user; // Assuming req.user contains the user's ID
+    const { name, about, dob, link, location } = req.body;
+    
+    // Find the user by ID
+    let user = await User.findById(userId);
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "user not found",
+        message: "User not found",
       });
     }
-    const { name, about, dob, link, location } = req.body;
-    user = await User.updateOne({
-      name,
-      description :{
-        about,
-        dob,
-        location,
-        link,
-      }
-    });
+
+    // Update user data
+    user.name = name;
+    user.description = {
+      about,
+      dob,
+      location,
+      link,
+    };
+
+    await user.save(); // Save the updated user data
+
     res.status(200).json({
       success: true,
       message: "User data updated",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating user data",
+    });
   }
 };
 
@@ -260,7 +269,7 @@ export const logout = (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.user);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -268,7 +277,11 @@ export const deleteUser = async (req, res, next) => {
       });
     }
     await user.deleteOne();
-    res.status(200).json({
+    res.status(200)
+    .cookie("token", "", {
+      expires: new Date(Date.now()),
+    })
+    .json({
       success: true,
       message: "user deleted succesfully",
     });

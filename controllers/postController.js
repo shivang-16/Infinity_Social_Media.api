@@ -205,7 +205,8 @@ export const comments = async (req, res, next) => {
 
 export const deleteComment = async (req, res, next) => {
   try {
-    const comment = await Post.comments(req.param.id)
+    const comment = await Post.comments.findById(req.param.id)
+    console.log(comment)
     if(!comment){
       return res.status(400).json({
         success: false,
@@ -225,6 +226,4 @@ export const deleteComment = async (req, res, next) => {
       message: error.message
     }) 
   }
- 
-  
 };
