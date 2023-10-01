@@ -1,7 +1,7 @@
 import { User } from "../models/userModel.js";
 import { setCookie } from "../utils/features.js";
-import bcrypt from "bcrypt";
 import { sendMail } from "../middlewares/sendOtp.js";
+import bcrypt from "bcrypt";
 
 
 let OTP, user;
@@ -41,7 +41,7 @@ export const register = async (req, res, next) => {
     await sendMail({
       email,
       subject: 'Verification code',
-      message: `Your verification code is ${OTP}`
+      message: `Your verification code to signup is ${OTP}`
     })
 
 
@@ -89,7 +89,68 @@ export const verifyOtp = async(req, res, next)=>{
   }
 }
 
+//Forgot possword
+export const forgetPassword = async (req, res, next) =>{
+    try {
+      let email = req.user.email
+      console.log(email);
+      let digits ='0123456789'
+      OTP=''
+      for(let i=0; i<4; i++){
+          OTP += digits[Math.floor(Math.random()*10)]
+      }
+  
+      await sendMail({
+        email,
+        subject: 'Verification code',
+        message: `Your verification code to change password is ${OTP}`
+      })
+      res.status(200).json({
+       success:true,
+       message: `Password recovery otp sent to ${email}`
+      })
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      })
+    }
+     
+}
 
+export const changePassword = async(req, res, next)=>{
+   try {
+    let { otp, newPassword } = req.body;
+    if(otp != OTP){
+      return res.status(400).json({
+          success:false,
+          message:"Invalid Otp"
+      })
+  } 
+    let user = await User.findById(req.user)
+    if(!user){
+     return res.status(400).json({
+       success:false,
+       message:"User not found"
+     })
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword
+    await user.save();
+    res.status(200).json({
+     success: true,
+     message: "Password Updated"
+    })
+   } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    })
+   }
+}
+
+//login to your account
 export const login = async (req, res, next) => {
   try {
     const { loginIdentifier, password } = req.body;
@@ -130,6 +191,9 @@ export const login = async (req, res, next) => {
     });
   }
 };
+
+
+
 
 export const updateUser = async (req, res, next) => {
   try {
