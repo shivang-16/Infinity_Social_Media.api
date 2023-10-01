@@ -16,11 +16,6 @@ const userSchema = new Schema({
     public_id: String,
     url: String,
   },
-  phone: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
   email: {
     type: String,
     required: true,

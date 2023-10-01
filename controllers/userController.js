@@ -8,7 +8,7 @@ let OTP, user;
 export const register = async (req, res, next) => {
   try {
 
-    const { name, userName, phone, email, password } = req.body;
+    const { name, userName,  email, password } = req.body;
     let userEmail = await User.findOne({ email });
 
     if (userEmail) {
@@ -27,14 +27,7 @@ export const register = async (req, res, next) => {
       });
     }
 
-    let phoneNumber = await User.findOne({ phone });
 
-    if (phoneNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "Phone Number already exists",
-      });
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -50,19 +43,12 @@ export const register = async (req, res, next) => {
       subject: 'Verification code',
       message: `Your verification code is ${OTP}`
     })
-    // const message = await client.messages.create({
-    //   body:`Your verification code is ${OTP}`,
-    //   to: phone,
-    //   messagingServiceSid: process.env.TWILIO_MESSAGING_SID,
-    // });
-    // console.log(`Message sent with SID: ${message.sid}`);
 
 
     //creating user 
      user = new User({
       name,
       userName,
-      phone,
       email,
       password: hashedPassword,
       avatar: { public_id: "sample_id", url: "sample_url" },
@@ -113,14 +99,10 @@ export const login = async (req, res, next) => {
     if (loginIdentifier.includes("@")) {
       user = await User.findOne({ email: loginIdentifier }).select("+password");
     } else {
-      // Check if it's a valid phone number format (you may need to adjust this regex)
-      const phoneRegex = /^\d{12}$/;
-      if (phoneRegex.test(loginIdentifier)) {
-        user = await User.findOne({ phone: loginIdentifier }).select("+password");
-      } else {
-        // If it's not an email or phone, assume it's a username
+      
+        // If it's not an email, assume it's a username
         user = await User.findOne({ userName: loginIdentifier }).select("+password");
-      }
+      
     }
 
     if (!user) {
