@@ -1,16 +1,12 @@
 import { User } from "../models/userModel.js";
 import { setCookie } from "../utils/features.js";
 import bcrypt from "bcrypt";
-import twilio from 'twilio';
+import { sendMail } from "../middlewares/sendOtp.js";
 
 
 let OTP, user;
 export const register = async (req, res, next) => {
   try {
-    //twilio authentication
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const client = twilio(accountSid, authToken);
 
     const { name, userName, phone, email, password } = req.body;
     let userEmail = await User.findOne({ email });
@@ -48,12 +44,18 @@ export const register = async (req, res, next) => {
     for(let i=0; i<4; i++){
         OTP += digits[Math.floor(Math.random()*10)]
     }
-    const message = await client.messages.create({
-      body:`Your verification code is ${OTP}`,
-      to: phone,
-      messagingServiceSid: process.env.TWILIO_MESSAGING_SID,
-    });
-    console.log(`Message sent with SID: ${message.sid}`);
+
+    await sendMail({
+      email,
+      subject: 'Verification code',
+      message: `Your verification code is ${OTP}`
+    })
+    // const message = await client.messages.create({
+    //   body:`Your verification code is ${OTP}`,
+    //   to: phone,
+    //   messagingServiceSid: process.env.TWILIO_MESSAGING_SID,
+    // });
+    // console.log(`Message sent with SID: ${message.sid}`);
 
 
     //creating user 
@@ -67,10 +69,11 @@ export const register = async (req, res, next) => {
     });
    res.status(200).json({
     success:true,
-    message: `Otp sent to ${phone}`
+    message: `Otp sent to ${email}`
    })
    
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message,
