@@ -1,14 +1,20 @@
 import { Post } from "../models/postModel.js";
 import { User } from "../models/userModel.js";
+import { v2 as cloudinary } from 'cloudinary'
+
 export const createPost = async (req, res, next) => {
   try {
+
+    const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
+      folder: "posts"
+    })
     const { caption } = req.body;
 
     const post = await Post.create({
       caption,
       image: {
-        public_id: "req.body.public_id",
-        url: "req.body.url",
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
       },
       owner: req.user,
     });
@@ -209,21 +215,42 @@ export const comments = async (req, res, next) => {
 
 export const deleteComment = async (req, res, next) => {
   try {
-    const comment = await Post.comments.findById(req.param.id)
-    console.log(comment)
-    if(!comment){
+    const post = await Post.findById(req.params.id);
+    console.log(req.params.id)
+    console.log(post)
+    if(!post){
       return res.status(400).json({
         success: false,
         message: "Invalid request"
       })
     }
     
-    comment.deleteOne()
-    await comment.save()
-    res.status(200).json({
-      success: true,
-      message: "comment deleted successfully"
-    })
+    if(post.owner.toString()===req.user._id.toString()){
+      post.comments.forEach((item, index)=>{
+        if(item._id.toString() === req.body.commentId.toString()){
+          return post.comments.splice(index, 1);
+        }
+       })  
+       await post.save()
+       res.status(200).json({
+         success: true,
+         message: "comment deleted successfully"
+       })
+    }
+    else{
+       post.comments.forEach((item, index)=>{
+        if(item.user.toString() === req.user._id.toString()){
+          return post.comments.splice(index, 1);
+        }
+       })
+       await post.save()
+       res.status(200).json({
+         success: true,
+         message: "comment deleted successfully"
+       })
+    }
+
+ 
   } catch (error) {
     return res.status(500).json({
       success: false,

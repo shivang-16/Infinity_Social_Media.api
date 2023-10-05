@@ -1,6 +1,7 @@
 import { User } from "../models/userModel.js";
 import { setCookie } from "../utils/features.js";
 import { sendMail } from "../middlewares/sendOtp.js";
+import { v2 as cloudinary } from 'cloudinary'
 import bcrypt from "bcrypt";
 
 
@@ -45,13 +46,16 @@ export const register = async (req, res, next) => {
     })
 
 
+    const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
+      folder: "users"
+    })
     //creating user 
      user = new User({
       name,
       userName,
       email,
       password: hashedPassword,
-      avatar: { public_id: "sample_id", url: "sample_url" },
+      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
     });
    res.status(200).json({
     success:true,
