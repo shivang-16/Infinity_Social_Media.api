@@ -62,7 +62,6 @@ export const register = async (req, res, next) => {
    })
    
   } catch (error) {
-    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -96,7 +95,6 @@ export const verifyOtp = async(req, res, next)=>{
 export const forgetPassword = async (req, res, next) =>{
     try {
       let email = req.user.email
-      console.log(email);
       let digits ='0123456789'
       OTP=''
       for(let i=0; i<4; i++){
@@ -187,7 +185,6 @@ export const login = async (req, res, next) => {
     // Successful login
     setCookie(user, res, "Login Successfully", 200);
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -229,7 +226,6 @@ export const updateUser = async (req, res, next) => {
       message: "User data updated",
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       success: false,
       message: "An error occurred while updating user data",
@@ -291,7 +287,6 @@ export const getAllUsers = async (req, res, next) => {
       length: users.length
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -313,7 +308,6 @@ export const logout = (req, res, next) => {
         message: "Logout Successfull",
       });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -342,6 +336,9 @@ export const deleteUser = async (req, res, next) => {
       message: "user deleted succesfully",
     });
   } catch (error) {
-    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

@@ -18,7 +18,6 @@ export const createPost = async (req, res, next) => {
       },
       owner: req.user,
     });
-    console.log('req.user:', req.user);
 
 
     //pushing the post into the user data
@@ -77,7 +76,6 @@ export const editPost = async (req, res, next) => {
       message: "Post updated successfull",
     });
   } catch (error) {
-    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -174,7 +172,6 @@ export const bookmarks = async(req, res, next)=>{
       message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked"
     })
   } catch (error) {
-    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message
@@ -216,8 +213,7 @@ export const comments = async (req, res, next) => {
 export const deleteComment = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
-    console.log(req.params.id)
-    console.log(post)
+  
     if(!post){
       return res.status(400).json({
         success: false,
