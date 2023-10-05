@@ -45,17 +45,16 @@ export const register = async (req, res, next) => {
       message: `Your verification code to signup is ${OTP}`
     })
 
-
-    const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
-      folder: "users"
-    })
+    // const myCloud = await cloudinary.v2.uploader.upload(req.bosy.avatar, {
+    //   folder: "users"
+    // })
     //creating user 
      user = new User({
       name,
       userName,
       email,
       password: hashedPassword,
-      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
+      avatar: { public_id: 'myCloud.public_id', url: 'myCloud.secure_url'},
     });
    res.status(200).json({
     success:true,
@@ -306,6 +305,8 @@ export const logout = (req, res, next) => {
       .status(200)
       .cookie("token", "", {
         expires: new Date(Date.now()),
+        sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+        secure: process.env.NODE_ENV === "Development" ? false : true,
       })
       .json({
         success: true,
@@ -333,6 +334,8 @@ export const deleteUser = async (req, res, next) => {
     res.status(200)
     .cookie("token", "", {
       expires: new Date(Date.now()),
+      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "Development" ? false : true,
     })
     .json({
       success: true,

@@ -4,16 +4,26 @@ import postRouter from "./Routers/postRouter.js";
 import followRouter from "./Routers/followRouter.js";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
+import cors from "cors";
+
 
 export const app = express();
 
 config({
   path: "./data/config.env",
 });
-// console.log(process.env.TWILIO_ACCOUNT_SID)
-// console.log(process.env.JWT_SECRET)
-app.use(express.json());
+app.use(express.json({limit: "50mb"}));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: [process.env.FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
+
+
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/follow", followRouter);

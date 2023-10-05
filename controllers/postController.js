@@ -5,16 +5,16 @@ import { v2 as cloudinary } from 'cloudinary'
 export const createPost = async (req, res, next) => {
   try {
 
-    const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
-      folder: "posts"
-    })
+    // const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
+    //   folder: "posts"
+    // })
     const { caption } = req.body;
 
     const post = await Post.create({
       caption,
       image: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
+        public_id: 'myCloud.public_id',
+        url: 'myCloud.secure_url',
       },
       owner: req.user,
     });
@@ -23,7 +23,7 @@ export const createPost = async (req, res, next) => {
 
     //pushing the post into the user data
     const user = await User.findById(req.user);
-    user.posts.push(post._id);
+    user.posts.unshift(post._id);
     await user.save();
 
     res.status(201).json({
@@ -130,7 +130,7 @@ export const likes = async (req, res, next) => {
       post.likesCount--
     } else {
       // User has not liked the post, so add their ID
-      post.likes.push(user._id);
+      post.likes.unshift(user._id);
       post.likesCount++
     }
   
@@ -166,7 +166,7 @@ export const bookmarks = async(req, res, next)=>{
        })
     }
     else{
-      user.bookmarks.push(bookmarkedPost._id)
+      user.bookmarks.unshift(bookmarkedPost._id)
     }
     await user.save()
     res.status(201).json({
@@ -194,7 +194,7 @@ export const comments = async (req, res, next) => {
 
     const { comment } = req.body;
 
-    post.comments.push({
+    post.comments.unshift({
       user: req.user._id,
       comment,
     });
