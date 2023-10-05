@@ -7,7 +7,7 @@ import {
   deletePost,
   likes,
   comments,
-  deleteComment
+  deleteComment,
 } from "../controllers/postController.js";
 
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -22,9 +22,11 @@ router
   .put(isAuthenticated, editPost)
   .delete(isAuthenticated, deletePost);
 
-router.route("/bookmark/:id").post(isAuthenticated, bookmarks)
+router.route("/bookmark/:id").post(isAuthenticated, bookmarks);
 router.route("/likes/:id").post(isAuthenticated, likes);
-router.route("/comments/:id").post(isAuthenticated, comments).delete(isAuthenticated, deleteComment);
+router
+  .route("/comments/:id")
+  .post(isAuthenticated, comments)
+  .delete(isAuthenticated, deleteComment);
 
 export default router;
-

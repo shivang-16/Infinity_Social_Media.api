@@ -6,13 +6,12 @@ import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import cors from "cors";
 
-
 export const app = express();
 
 config({
   path: "./data/config.env",
 });
-app.use(express.json({limit: "50mb"}));
+app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 app.use(
@@ -22,7 +21,6 @@ app.use(
     credentials: true,
   }),
 );
-
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);

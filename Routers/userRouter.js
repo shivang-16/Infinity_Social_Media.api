@@ -10,15 +10,14 @@ import {
   getMyProfile,
   verifyOtp,
   forgetPassword,
-  changePassword
+  changePassword,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-
 router.post("/register", register);
-router.post("/verify", verifyOtp)
+router.post("/verify", verifyOtp);
 router.post("/login", login);
 router.post("/forgetPassword", isAuthenticated, forgetPassword);
 router.post("/changePassword", isAuthenticated, changePassword);

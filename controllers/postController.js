@@ -1,10 +1,9 @@
 import { Post } from "../models/postModel.js";
 import { User } from "../models/userModel.js";
-import { v2 as cloudinary } from 'cloudinary'
+import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = async (req, res, next) => {
   try {
-
     // const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
     //   folder: "posts"
     // })
@@ -13,12 +12,11 @@ export const createPost = async (req, res, next) => {
     const post = await Post.create({
       caption,
       image: {
-        public_id: 'myCloud.public_id',
-        url: 'myCloud.secure_url',
+        public_id: "myCloud.public_id",
+        url: "myCloud.secure_url",
       },
       owner: req.user,
     });
-
 
     //pushing the post into the user data
     const user = await User.findById(req.user);
@@ -36,7 +34,6 @@ export const createPost = async (req, res, next) => {
     });
   }
 };
-
 
 export const getAllPost = async (req, res, next) => {
   try {
@@ -125,13 +122,13 @@ export const likes = async (req, res, next) => {
       post.likes = post.likes.filter(
         (likedUserId) => likedUserId.toString() !== user._id.toString(),
       );
-      post.likesCount--
+      post.likesCount--;
     } else {
       // User has not liked the post, so add their ID
       post.likes.unshift(user._id);
-      post.likesCount++
+      post.likesCount++;
     }
-  
+
     await post.save();
     res.status(200).json({
       success: true,
@@ -145,39 +142,37 @@ export const likes = async (req, res, next) => {
   }
 };
 
-
-export const bookmarks = async(req, res, next)=>{
+export const bookmarks = async (req, res, next) => {
   try {
     let bookmarkedPost = await Post.findById(req.params.id);
-    if(!bookmarkedPost){
+    if (!bookmarkedPost) {
       return res.status(400).json({
         success: false,
-        message: "Invalid request"
-      })
+        message: "Invalid request",
+      });
     }
 
-    let user = await User.findById(req.user._id)
-    const isBookmarked = user.bookmarks.includes(bookmarkedPost._id.toString())
-    if(isBookmarked){
-       user.bookmarks = user.bookmarks.filter((bookmarkedPostid)=>{
-              bookmarkedPostid.toString() !== user._id.toString();
-       })
+    let user = await User.findById(req.user._id);
+    const isBookmarked = user.bookmarks.includes(bookmarkedPost._id.toString());
+    if (isBookmarked) {
+      user.bookmarks = user.bookmarks.filter((bookmarkedPostid) => {
+        bookmarkedPostid.toString() !== user._id.toString();
+      });
+    } else {
+      user.bookmarks.unshift(bookmarkedPost._id);
     }
-    else{
-      user.bookmarks.unshift(bookmarkedPost._id)
-    }
-    await user.save()
+    await user.save();
     res.status(201).json({
       success: true,
-      message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked"
-    })
+      message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked",
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
+};
 
 export const comments = async (req, res, next) => {
   try {
@@ -195,7 +190,7 @@ export const comments = async (req, res, next) => {
       user: req.user._id,
       comment,
     });
-     post.commentsCount++;
+    post.commentsCount++;
     await post.save();
 
     res.status(200).json({
@@ -213,44 +208,41 @@ export const comments = async (req, res, next) => {
 export const deleteComment = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
-  
-    if(!post){
+
+    if (!post) {
       return res.status(400).json({
         success: false,
-        message: "Invalid request"
-      })
-    }
-    
-    if(post.owner.toString()===req.user._id.toString()){
-      post.comments.forEach((item, index)=>{
-        if(item._id.toString() === req.body.commentId.toString()){
-          return post.comments.splice(index, 1);
-        }
-       })  
-       await post.save()
-       res.status(200).json({
-         success: true,
-         message: "comment deleted successfully"
-       })
-    }
-    else{
-       post.comments.forEach((item, index)=>{
-        if(item.user.toString() === req.user._id.toString()){
-          return post.comments.splice(index, 1);
-        }
-       })
-       await post.save()
-       res.status(200).json({
-         success: true,
-         message: "comment deleted successfully"
-       })
+        message: "Invalid request",
+      });
     }
 
- 
+    if (post.owner.toString() === req.user._id.toString()) {
+      post.comments.forEach((item, index) => {
+        if (item._id.toString() === req.body.commentId.toString()) {
+          return post.comments.splice(index, 1);
+        }
+      });
+      await post.save();
+      res.status(200).json({
+        success: true,
+        message: "comment deleted successfully",
+      });
+    } else {
+      post.comments.forEach((item, index) => {
+        if (item.user.toString() === req.user._id.toString()) {
+          return post.comments.splice(index, 1);
+        }
+      });
+      await post.save();
+      res.status(200).json({
+        success: true,
+        message: "comment deleted successfully",
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
-    }) 
+      message: error.message,
+    });
   }
 };
