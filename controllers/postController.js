@@ -52,10 +52,33 @@ export const getAllPost = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message,
     });
   }
 };
+
+export const getPostbyId = async(req, res)=>{
+  try {
+    const postId = req.params.id
+    let post = await Post.findById(postId)    
+    if(!post){
+     return res.status(400).json({
+       success: false,
+       message: "Post not found"
+     })
+    }
+ 
+    res.status(200).json({
+     success: true,
+     post,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 
 export const editPost = async (req, res, next) => {
   try {

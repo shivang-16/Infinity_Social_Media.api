@@ -11,6 +11,7 @@ import {
   verifyOtp,
   forgetPassword,
   changePassword,
+  getUserbyID,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
@@ -26,5 +27,6 @@ router.post("/logout", isAuthenticated, logout);
 router.patch("/update", isAuthenticated, updateUser);
 router.delete("/delete", isAuthenticated, deleteUser);
 router.get("/all", getAllUsers);
+router.post("/:id", getUserbyID)
 
 export default router;

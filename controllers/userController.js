@@ -331,3 +331,29 @@ export const deleteUser = async (req, res, next) => {
     });
   }
 };
+
+
+export const getUserbyID = async (req, res, next) => {
+  try {
+    const userId = req.params.id; // Use req.params.id to get the user ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -8,6 +8,7 @@ import {
   likes,
   comments,
   deleteComment,
+  getPostbyId
 } from "../controllers/postController.js";
 
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -19,6 +20,7 @@ router.get("/all", getAllPost);
 
 router
   .route("/:id")
+  .get(getPostbyId)
   .put(isAuthenticated, editPost)
   .delete(isAuthenticated, deletePost);
 
