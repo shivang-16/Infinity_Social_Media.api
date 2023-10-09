@@ -57,28 +57,49 @@ export const getAllPost = async (req, res, next) => {
   }
 };
 
-export const getPostbyId = async(req, res)=>{
+export const getPostbyId = async (req, res) => {
   try {
-    const postId = req.params.id
-    let post = await Post.findById(postId)    
-    if(!post){
-     return res.status(400).json({
-       success: false,
-       message: "Post not found"
-     })
+    const postId = req.params.id;
+    let post = await Post.findById(postId);
+    if (!post) {
+      return res.status(400).json({
+        success: false,
+        message: "Post not found",
+      });
     }
- 
+
     res.status(200).json({
-     success: true,
-     post,
-    })
+      success: true,
+      post,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
-}
+};
+
+export const getPostofFollowings = async (req, res) => {
+  try {
+    const user = await User.findById(req.user);
+    const posts = await Post.find({
+      owner: {
+        $in: user.following,
+      },
+    }).populate("owner likes comments.user");
+
+    res.status(200).json({
+      success: true,
+      posts: posts.reverse(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const editPost = async (req, res, next) => {
   try {
@@ -114,20 +135,18 @@ export const deletePost = async (req, res, next) => {
     }
 
     await post.deleteOne();
-    
+
     //removing post id from user
     const user = await User.findById(req.user._id);
     const index = user.posts.indexOf(req.params.id);
     user.posts.splice(index, 1);
 
     await user.save();
-   
+
     res.status(200).json({
       success: true,
       message: "Post deleted Successfully",
     });
-
-
   } catch (error) {
     return res.status(500).json({
       success: false,

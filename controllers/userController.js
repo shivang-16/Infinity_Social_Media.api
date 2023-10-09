@@ -311,7 +311,7 @@ export const deleteUser = async (req, res, next) => {
     const followers = user.followers;
     const following = user.following;
     const bookmarks = user.bookmarks;
-    const userId = user._id
+    const userId = user._id;
 
     if (!user) {
       return res.status(404).json({
@@ -319,59 +319,58 @@ export const deleteUser = async (req, res, next) => {
         message: "user not found",
       });
     }
- 
 
     //removing all the users posts
-    for(let i=0; i<posts.length; i++){
-        const post = await Post.findById(posts[i]);
-        await post.deleteOne();
+    for (let i = 0; i < posts.length; i++) {
+      const post = await Post.findById(posts[i]);
+      await post.deleteOne();
     }
 
     //removing followers list from user.following
-    for(let i=0; i<followers.length; i++){
-        const follower = await Post.findById(followers[i]);
-        const index = follower.following.indexOf(followers[i])
-        follower.following.splice(index, 1)
-        await follower.save();
+    for (let i = 0; i < followers.length; i++) {
+      const follower = await Post.findById(followers[i]);
+      const index = follower.following.indexOf(followers[i]);
+      follower.following.splice(index, 1);
+      await follower.save();
     }
 
     //removing the user from the followers list of following users
-    for(let i=0; i<following.length; i++){
-        const follows = await User.findById(following[i]);
-        const index = follows.followers.indexOf(userId)
-        follows.followers.splice(index, 1)
-        await follows.save();
+    for (let i = 0; i < following.length; i++) {
+      const follows = await User.findById(following[i]);
+      const index = follows.followers.indexOf(userId);
+      follows.followers.splice(index, 1);
+      await follows.save();
     }
 
     //removing the bookmarked posts id
-    for(let i=0; i<bookmarks.length; i++){
-        const bookmark = await User.findById(bookmarks[i]);
-        const index = bookmark.bookmarks.indexOf(bookmarks[i])
-        bookmark.bookmarks.splice(index, 1)
-        await bookmark.save();
+    for (let i = 0; i < bookmarks.length; i++) {
+      const bookmark = await User.findById(bookmarks[i]);
+      const index = bookmark.bookmarks.indexOf(bookmarks[i]);
+      bookmark.bookmarks.splice(index, 1);
+      await bookmark.save();
     }
-    
+
     //removing all the comments of the user
     const allPost = await Post.find();
 
-    for(let i = 0; i< allPost.length; i++){
+    for (let i = 0; i < allPost.length; i++) {
       const post = await Post.findById(allPost[i]._id);
-      for(let j=0; j<post.comments.length; j++){
-        if(post.comments[j].user=== userId){
-          post.comments.splice(j,1)
+      for (let j = 0; j < post.comments.length; j++) {
+        if (post.comments[j].user === userId) {
+          post.comments.splice(j, 1);
         }
       }
-      post.save()
+      post.save();
     }
     //removing all the likes of the user
-    for(let i = 0; i< allPost.length; i++){
+    for (let i = 0; i < allPost.length; i++) {
       const post = await Post.findById(allPost[i]._id);
-      for(let j=0; j<post.likes.length; j++){
-        if(post.likes[j] === userId){
-          post.likes.splice(j,1)
+      for (let j = 0; j < post.likes.length; j++) {
+        if (post.likes[j] === userId) {
+          post.likes.splice(j, 1);
         }
       }
-      post.save()
+      post.save();
     }
 
     await user.deleteOne();
@@ -379,14 +378,12 @@ export const deleteUser = async (req, res, next) => {
       expires: new Date(Date.now()),
       sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
       secure: process.env.NODE_ENV === "Development" ? false : true,
-    })
+    });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "user deleted succesfully",
-      });
+    res.status(200).json({
+      success: true,
+      message: "user deleted succesfully",
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -395,16 +392,15 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-
 export const getUserbyID = async (req, res, next) => {
   try {
-    const userId = req.params.id; 
+    const userId = req.params.id;
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -421,23 +417,50 @@ export const getUserbyID = async (req, res, next) => {
   }
 };
 
-// export const getMyPost = async(req, res)=>{
-//   try {
-//     const user = await User.findById(req.user);
-//     const posts = []
+export const getMyPosts = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    const posts = [];
 
-//     for(let i=0; i<user.posts.length; i++){
-//        const post = await Post.findById(user.posts[i]).populate("likes comments.user owner");
-//        posts.push(post)
-//     }
-//       res.status(200).json({
-//         success:true,
-//         posts,
-//       })
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// }
+    for (let i = 0; i < user.posts.length; i++) {
+      const post = await Post.findById(user.posts[i]).populate(
+        "likes comments.user owner",
+      );
+      posts.push(post);
+    }
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//get all user posts by user id
+export const getUserPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    const posts = [];
+
+    for (let i = 0; i < user.posts.length; i++) {
+      const post = await Post.findById(user.posts[i]).populate(
+        "likes comments.user owner",
+      );
+      posts.push(post);
+    }
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

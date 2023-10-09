@@ -12,6 +12,8 @@ import {
   forgetPassword,
   changePassword,
   getUserbyID,
+  getMyPosts,
+  getUserPosts,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
@@ -27,7 +29,8 @@ router.post("/logout", isAuthenticated, logout);
 router.patch("/update", isAuthenticated, updateUser);
 router.delete("/delete", isAuthenticated, deleteUser);
 router.get("/all", getAllUsers);
-router.post("/:id", getUserbyID)
-
+router.post("/:id", getUserbyID);
+router.route("/me/posts").get(isAuthenticated, getMyPosts);
+router.route("/posts/:id").get(isAuthenticated, getUserPosts);
 
 export default router;

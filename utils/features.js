@@ -13,6 +13,6 @@ export const setCookie = async (user, res, message, statusCode) => {
     .json({
       success: true,
       message,
-      user
+      user,
     });
 };
