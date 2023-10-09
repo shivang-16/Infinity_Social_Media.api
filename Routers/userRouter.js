@@ -29,4 +29,5 @@ router.delete("/delete", isAuthenticated, deleteUser);
 router.get("/all", getAllUsers);
 router.post("/:id", getUserbyID)
 
+
 export default router;

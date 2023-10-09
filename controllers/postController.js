@@ -114,10 +114,20 @@ export const deletePost = async (req, res, next) => {
     }
 
     await post.deleteOne();
+    
+    //removing post id from user
+    const user = await User.findById(req.user._id);
+    const index = user.posts.indexOf(req.params.id);
+    user.posts.splice(index, 1);
+
+    await user.save();
+   
     res.status(200).json({
       success: true,
       message: "Post deleted Successfully",
     });
+
+
   } catch (error) {
     return res.status(500).json({
       success: false,
