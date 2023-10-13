@@ -256,7 +256,7 @@ export const getAllUsers = async (req, res, next) => {
 
     let apiData = User.find(queryObject);
     let page = req.query.page || 1;
-    let limit = req.query.limit || 2;
+    let limit = req.query.limit || 10;
 
     //pagination formula
     let skip = (page - 1) * limit;
