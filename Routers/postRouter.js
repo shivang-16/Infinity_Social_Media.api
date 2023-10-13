@@ -25,8 +25,8 @@ router
   .put(isAuthenticated, editPost)
   .delete(isAuthenticated, deletePost);
 
-router.route("/bookmark/:id").post(isAuthenticated, bookmarks);
-router.route("/likes/:id").post(isAuthenticated, likes);
+router.route("/bookmark/:id").get(isAuthenticated, bookmarks);
+router.route("/likes/:id").get(isAuthenticated, likes);
 router
   .route("/comments/:id")
   .post(isAuthenticated, comments)
