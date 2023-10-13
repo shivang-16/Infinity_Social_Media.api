@@ -25,7 +25,7 @@ router.post("/login", login);
 router.post("/forgetPassword", isAuthenticated, forgetPassword);
 router.post("/changePassword", isAuthenticated, changePassword);
 router.get("/myProfile", isAuthenticated, getMyProfile);
-router.post("/logout", isAuthenticated, logout);
+router.get("/logout", logout);
 router.patch("/update", isAuthenticated, updateUser);
 router.delete("/delete", isAuthenticated, deleteUser);
 router.get("/all", getAllUsers);
