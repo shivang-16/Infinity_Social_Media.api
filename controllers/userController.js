@@ -227,7 +227,9 @@ export const updateUser = async (req, res, next) => {
 //get the profile of logined user
 export const getMyProfile = async (req, res, next) => {
   try {
-    let user = await User.findById(req.user._id);
+    let user = await User.findById(req.user._id).populate(
+      "posts followers following"
+    );
     res.status(200).json({
       success: true,
       message: "Profile fetched",

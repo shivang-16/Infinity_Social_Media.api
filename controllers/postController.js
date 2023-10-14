@@ -16,7 +16,7 @@ export const createPost = async (req, res, next) => {
         url: "myCloud.secure_url",
       },
       owner: req.user,
-    }).populate("owner likes comments.user");
+    });
 
     //pushing the post into the user data
     const user = await User.findById(req.user);
@@ -37,7 +37,7 @@ export const createPost = async (req, res, next) => {
 
 export const getAllPost = async (req, res, next) => {
   try {
-    const post = await Post.find();
+    const post = await Post.find().populate("owner likes comments.user");
     if (!post) {
       return res.status(404).json({
         success: false,
