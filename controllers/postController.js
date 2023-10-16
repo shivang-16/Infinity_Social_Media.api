@@ -60,7 +60,7 @@ export const getAllPost = async (req, res, next) => {
 export const getPostbyId = async (req, res) => {
   try {
     const postId = req.params.id;
-    let post = await Post.findById(postId);
+    let post = await Post.findById(postId).populate("owner likes comments.user");
     if (!post) {
       return res.status(400).json({
         success: false,

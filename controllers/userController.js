@@ -256,7 +256,9 @@ export const getAllUsers = async (req, res, next) => {
       queryObject.userName = { $regex: userName, $options: "i" };
     }
 
-    let apiData = User.find(queryObject);
+    let apiData = User.find(queryObject).populate(
+      "posts followers following"
+    );
     let page = req.query.page || 1;
     let limit = req.query.limit || 10;
 
@@ -397,7 +399,9 @@ export const deleteUser = async (req, res, next) => {
 export const getUserbyID = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate(
+      "posts followers following"
+    );
 
     if (!user) {
       return res.status(400).json({
