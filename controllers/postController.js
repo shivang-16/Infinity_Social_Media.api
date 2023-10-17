@@ -111,7 +111,8 @@ export const editPost = async (req, res, next) => {
       });
     }
     const { caption } = req.body;
-    post = await Post.updateOne({ caption });
+    post.caption = caption
+    await post.save()
     res.status(200).json({
       success: true,
       message: "Post updated successfull",

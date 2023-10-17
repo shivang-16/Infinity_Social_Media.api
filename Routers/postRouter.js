@@ -22,7 +22,7 @@ router.get("/following", isAuthenticated, getPostofFollowings);
 router
   .route("/:id")
   .get(getPostbyId)
-  .put(isAuthenticated, editPost)
+  .patch(isAuthenticated, editPost)
   .delete(isAuthenticated, deletePost);
 
 router.route("/bookmark/:id").get(isAuthenticated, bookmarks);
