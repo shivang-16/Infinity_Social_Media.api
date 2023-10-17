@@ -16,17 +16,18 @@ import {
   getUserPosts,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
+import singleUpload from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.post("/register", register);
+router.post("/register",singleUpload, register);
 router.post("/verify", verifyOtp);
 router.post("/login", login);
 router.post("/forgetPassword", isAuthenticated, forgetPassword);
 router.post("/changePassword", isAuthenticated, changePassword);
 router.get("/myProfile", isAuthenticated, getMyProfile);
 router.get("/logout", logout);
-router.patch("/update", isAuthenticated, updateUser);
+router.patch("/update", isAuthenticated, singleUpload, updateUser);
 router.delete("/delete", isAuthenticated, deleteUser);
 router.get("/all", getAllUsers);
 router.post("/:id", getUserbyID);

@@ -11,12 +11,12 @@ import {
   getPostbyId,
   getPostofFollowings,
 } from "../controllers/postController.js";
-
 import { isAuthenticated } from "../middlewares/auth.js";
+import singleUpload from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.post("/create", isAuthenticated, createPost);
+router.post("/create", isAuthenticated, singleUpload, createPost);
 router.get("/all", getAllPost);
 router.get("/following", isAuthenticated, getPostofFollowings);
 router

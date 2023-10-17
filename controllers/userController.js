@@ -2,8 +2,9 @@ import { User } from "../models/userModel.js";
 import { Post } from "../models/postModel.js";
 import { setCookie } from "../utils/features.js";
 import { sendMail } from "../middlewares/sendOtp.js";
-import { v2 as cloudinary } from "cloudinary";
 import bcrypt from "bcrypt";
+import cloudinary from 'cloudinary'
+import getDataUri from "../utils/dataUri.js";
 
 let OTP, user;
 export const register = async (req, res, next) => {
@@ -26,8 +27,9 @@ export const register = async (req, res, next) => {
         message: "Username already exists",
       });
     }
-
+   
     const hashedPassword = await bcrypt.hash(password, 10);
+   console.log(hashedPassword)
 
     //sending the otp with the help of twilio
     let digits = "0123456789";
@@ -42,16 +44,18 @@ export const register = async (req, res, next) => {
       message: `Your verification code to signup is ${OTP}`,
     });
 
-    // const myCloud = await cloudinary.v2.uploader.upload(req.bosy.avatar, {
-    //   folder: "users"
-    // })
-    //creating user
+    const file = req.file;
+    const fileUri = getDataUri(file)
+    const myCloud = await cloudinary.v2.uploader.upload(fileUri.content,{
+      folder: "avatars"
+    });
+
     user = new User({
       name,
       userName,
       email,
       password: hashedPassword,
-      avatar: { public_id: "myCloud.public_id", url: "myCloud.secure_url" },
+      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
     });
     res.status(200).json({
       success: true,
@@ -79,6 +83,7 @@ export const verifyOtp = async (req, res, next) => {
     user.save();
     setCookie(user, res, "Registered Successfully", 201);
   } catch (error) {
+
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -201,14 +206,29 @@ export const updateUser = async (req, res, next) => {
       });
     }
 
-    // Update user data
-    user.name = name;
-    user.description = {
-      about,
-      dob,
-      location,
-      link,
-    };
+   
+
+      user.name = name;
+      user.description = {
+        about,
+        dob,
+        location,
+        link,
+      };
+  
+    const file = req.file;
+    const fileUri = getDataUri(file)
+  
+
+    if (file) {
+      await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content,{
+        folder: "avatars"
+      });
+      user.avatar.public_id = myCloud.public_id;
+      user.avatar.url = myCloud.secure_url;
+    }
 
     await user.save(); // Save the updated user data
 
@@ -217,6 +237,7 @@ export const updateUser = async (req, res, next) => {
       message: "User data updated",
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       success: false,
       message: "An error occurred while updating user data",
@@ -324,9 +345,12 @@ export const deleteUser = async (req, res, next) => {
       });
     }
 
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
     //removing all the users posts
     for (let i = 0; i < posts.length; i++) {
       const post = await Post.findById(posts[i]);
+      await cloudinary.v2.uploader.destroy(post.image.public_id);
       await post.deleteOne();
     }
 

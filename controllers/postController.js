@@ -1,19 +1,25 @@
 import { Post } from "../models/postModel.js";
 import { User } from "../models/userModel.js";
-import { v2 as cloudinary } from "cloudinary";
+import getDataUri from "../utils/dataUri.js";
+import cloudinary from "cloudinary";
 
 export const createPost = async (req, res, next) => {
   try {
-    // const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
-    //   folder: "posts"
-    // })
+ 
     const { caption } = req.body;
+
+    const file = req.file;
+    const fileUri = getDataUri(file)
+   
+    const myCloud = await cloudinary.v2.uploader.upload(fileUri.content,{
+      folder: "posts"
+    });
 
     const post = await Post.create({
       caption,
       image: {
-        public_id: "myCloud.public_id",
-        url: "myCloud.secure_url",
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
       },
       owner: req.user,
     });
@@ -134,6 +140,8 @@ export const deletePost = async (req, res, next) => {
         message: "Invalid request",
       });
     }
+
+    await cloudinary.v2.uploader.destroy(post.image.public_id);
 
     await post.deleteOne();
 

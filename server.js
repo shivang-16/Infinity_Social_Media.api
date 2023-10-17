@@ -1,6 +1,6 @@
 import { app } from "./app.js";
 import { connectToDB } from "./data/database.js";
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "cloudinary";
 
 const port = process.env.PORT;
 
