@@ -194,11 +194,11 @@ export const likes = async (req, res, next) => {
       post.likes = post.likes.filter(
         (likedUserId) => likedUserId.toString() !== user._id.toString(),
       );
-      post.likesCount--;
+    
     } else {
       // User has not liked the post, so add their ID
       post.likes.unshift(user._id);
-      post.likesCount++;
+     
     }
 
     await post.save();
@@ -262,7 +262,6 @@ export const comments = async (req, res, next) => {
       user: req.user._id,
       comment,
     });
-    post.commentsCount++;
     await post.save();
 
     res.status(200).json({
