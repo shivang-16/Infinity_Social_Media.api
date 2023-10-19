@@ -44,18 +44,11 @@ export const register = async (req, res, next) => {
       message: `Your verification code to signup is ${OTP}`,
     });
 
-    const file = req.file;
-    const fileUri = getDataUri(file)
-    const myCloud = await cloudinary.v2.uploader.upload(fileUri.content,{
-      folder: "avatars"
-    });
-
     user = new User({
       name,
       userName,
       email,
       password: hashedPassword,
-      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
     });
     res.status(200).json({
       success: true,
@@ -194,7 +187,6 @@ export const login = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const userId = req.user; // Assuming req.user contains the user's ID
-    const { name, about, dob, link, location } = req.body;
 
     // Find the user by ID
     let user = await User.findById(userId);
@@ -206,29 +198,53 @@ export const updateUser = async (req, res, next) => {
       });
     }
 
-   
-
-      user.name = name;
-      user.description = {
-        about,
-        dob,
-        location,
-        link,
-      };
-  
-    const file = req.file;
-    const fileUri = getDataUri(file)
-  
-
-    if (file) {
-      await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-
-      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content,{
-        folder: "avatars"
-      });
-      user.avatar.public_id = myCloud.public_id;
-      user.avatar.url = myCloud.secure_url;
+    if (req.body.name) {
+      user.name = req.body.name;
     }
+
+    if (req.body.about || req.body.dob || req.body.location || req.body.link) {
+      user.description = {
+        about: req.body.about || '',
+        dob: req.body.dob || '',
+        location: req.body.location || '',
+        link: req.body.link ||  '',
+      };
+    } else {
+      // If no description data is provided in req.body, remove the description
+      user.description = {
+        about: '',
+        dob:  '',
+        location:  '',
+        link:   '',
+      };
+    }
+
+    const file = req.file;
+    if (file) {
+      // Destroy the existing avatar on Cloudinary if it exists
+      if (user.avatar && user.avatar.public_id) {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+      }
+
+      const fileUri = getDataUri(file);
+
+      // Upload the new avatar to Cloudinary
+      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
+        folder: "avatars",
+      });
+
+      user.avatar = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+    } else {
+      // If no photo (file) is provided, remove the avatar
+      user.avatar = {
+        public_id: '',
+        url: '',
+      };
+    }
+
 
     await user.save(); // Save the updated user data
 
@@ -237,19 +253,20 @@ export const updateUser = async (req, res, next) => {
       message: "User data updated",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while updating user data",
+      message: error.message,
     });
   }
 };
+
 
 //get the profile of logined user
 export const getMyProfile = async (req, res, next) => {
   try {
     let user = await User.findById(req.user._id).populate(
-      "posts followers following"
+      "posts followers following bookmarks"
     );
     res.status(200).json({
       success: true,
@@ -278,7 +295,7 @@ export const getAllUsers = async (req, res, next) => {
     }
 
     let apiData = User.find(queryObject).populate(
-      "posts followers following"
+      "posts followers following bookmarks"
     );
     let page = req.query.page || 1;
     let limit = req.query.limit || 10;
@@ -345,13 +362,20 @@ export const deleteUser = async (req, res, next) => {
       });
     }
 
-    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    if (user.avatar && user.avatar.public_id) {
+      await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    }
 
     //removing all the users posts
     for (let i = 0; i < posts.length; i++) {
       const post = await Post.findById(posts[i]);
-      await cloudinary.v2.uploader.destroy(post.image.public_id);
-      await post.deleteOne();
+      if (post) { // Check if the post exists
+        if (post.image && post.image.public_id) {
+          await cloudinary.v2.uploader.destroy(post.image.public_id);
+        }
+    
+        await post.deleteOne();
+      }
     }
 
     //removing followers list from user.following
@@ -424,7 +448,7 @@ export const getUserbyID = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId).populate(
-      "posts followers following"
+      "posts followers following bookmarks"
     );
 
     if (!user) {

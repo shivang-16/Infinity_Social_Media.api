@@ -28,7 +28,7 @@ const userSchema = new Schema({
   },
   description: {
     about: String,
-    dob: Date,
+    dob: String,
     location: String,
     link: String,
   },

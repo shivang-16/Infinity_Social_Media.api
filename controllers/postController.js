@@ -5,26 +5,31 @@ import cloudinary from "cloudinary";
 
 export const createPost = async (req, res, next) => {
   try {
- 
     const { caption } = req.body;
 
-    const file = req.file;
-    const fileUri = getDataUri(file)
-   
-    const myCloud = await cloudinary.v2.uploader.upload(fileUri.content,{
-      folder: "posts"
-    });
+    // Check if a file is provided in the request
+    let image = null;
+    if (req.file) {
+      const file = req.file;
+      const fileUri = getDataUri(file);
+
+      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
+        folder: "posts",
+      });
+
+      image = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+    }
 
     const post = await Post.create({
       caption,
-      image: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
+      image,
       owner: req.user,
     });
 
-    //pushing the post into the user data
+    // Pushing the post into the user data
     const user = await User.findById(req.user);
     user.posts.unshift(post._id);
     await user.save();
@@ -40,6 +45,7 @@ export const createPost = async (req, res, next) => {
     });
   }
 };
+
 
 export const getAllPost = async (req, res, next) => {
   try {
@@ -141,11 +147,14 @@ export const deletePost = async (req, res, next) => {
       });
     }
 
-    await cloudinary.v2.uploader.destroy(post.image.public_id);
+    // Check if the post has an image before trying to delete it
+    if (post.image && post.image.public_id) {
+      await cloudinary.v2.uploader.destroy(post.image.public_id);
+    }
 
     await post.deleteOne();
 
-    //removing post id from user
+    // Removing post id from the user
     const user = await User.findById(req.user._id);
     const index = user.posts.indexOf(req.params.id);
     user.posts.splice(index, 1);
@@ -154,15 +163,17 @@ export const deletePost = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Post deleted Successfully",
+      message: "Post deleted successfully",
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
 export const likes = async (req, res, next) => {
   try {
     let post = await Post.findById(req.params.id);
