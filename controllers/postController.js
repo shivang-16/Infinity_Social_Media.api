@@ -11,6 +11,14 @@ export const createPost = async (req, res, next) => {
     let image = null;
     if (req.file) {
       const file = req.file;
+      
+      if (file.size > 10 * 1024 * 1024) {
+        return res.status(400).json({
+          success: false,
+          message: "Maximum file size is 10 MB.",
+        });
+      }
+     
       const fileUri = getDataUri(file);
 
       const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
