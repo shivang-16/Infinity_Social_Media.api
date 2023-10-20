@@ -225,25 +225,21 @@ export const updateUser = async (req, res, next) => {
       if (user.avatar && user.avatar.public_id) {
         await cloudinary.v2.uploader.destroy(user.avatar.public_id);
       }
+       else{
+        const fileUri = getDataUri(file);
 
-      const fileUri = getDataUri(file);
-
-      // Upload the new avatar to Cloudinary
-      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
-        folder: "avatars",
-      });
-
-      user.avatar = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
-    } else {
-      // If no photo (file) is provided, remove the avatar
-      user.avatar = {
-        public_id: '',
-        url: '',
-      };
-    }
+        // Upload the new avatar to Cloudinary
+        const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
+          folder: "avatars",
+        });
+  
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+       }
+     
+    } 
 
 
     await user.save(); // Save the updated user data
@@ -253,7 +249,44 @@ export const updateUser = async (req, res, next) => {
       message: "User data updated",
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+export const deleteAvatar = async (req, res) => {
+  try {
+    const user = await User.findById(req.user); 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+  
+
+    if (user.avatar && user.avatar.public_id) {
+      await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    }
+    else{
+      res.status(400).json({
+        success: false,
+        message: "Avatar not found",
+      });
+    }
+    user.avatar = {
+      public_id: '',
+      url: 'https://res.cloudinary.com/ddszevvis/image/upload/v1697807048/avatars/Default_Image_oz0haa.png',
+    };
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated",
+    });
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
@@ -325,8 +358,7 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const logout = (req, res, next) => {
-  try {
+export const logout = (req, res) => {
     res
       .status(200)
       .cookie("token", "", {
@@ -338,12 +370,6 @@ export const logout = (req, res, next) => {
         success: true,
         message: "Logged out Successfully",
       });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
 };
 
 export const deleteUser = async (req, res, next) => {
@@ -482,6 +508,30 @@ export const getMyPosts = async (req, res) => {
         "likes comments.user owner",
       );
       posts.push(post);
+    }
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getMyBookmarks = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    const posts = [];
+
+    for (let i = 0; i < user.bookmarks.length; i++) {
+      const bookmark = await Post.findById(user.bookmarks[i]).populate(
+        "likes comments.user owner",
+      );
+      posts.push(bookmark);
     }
     res.status(200).json({
       success: true,
