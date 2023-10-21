@@ -3,7 +3,7 @@ import { Post } from "../models/postModel.js";
 import { setCookie } from "../utils/features.js";
 import { sendMail } from "../middlewares/sendOtp.js";
 import bcrypt from "bcrypt";
-import cloudinary from 'cloudinary'
+import cloudinary from "cloudinary";
 import getDataUri from "../utils/dataUri.js";
 
 let OTP, user;
@@ -27,7 +27,7 @@ export const register = async (req, res, next) => {
         message: "Username already exists",
       });
     }
-   
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     //sending the otp with the help of twilio
@@ -48,6 +48,10 @@ export const register = async (req, res, next) => {
       userName,
       email,
       password: hashedPassword,
+      avatar: {
+        public_id: "",
+        url: "https://res.cloudinary.com/ddszevvis/image/upload/v1697807048/avatars/Default_Image_oz0haa.png",
+      },
     });
     res.status(200).json({
       success: true,
@@ -75,7 +79,6 @@ export const verifyOtp = async (req, res, next) => {
     user.save();
     setCookie(user, res, "Registered Successfully", 201);
   } catch (error) {
-
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -119,7 +122,7 @@ export const changePassword = async (req, res, next) => {
         message: "Invalid Otp",
       });
     }
-    let user = await User.findOne({userName});
+    let user = await User.findOne({ userName });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -203,18 +206,18 @@ export const updateUser = async (req, res, next) => {
 
     if (req.body.about || req.body.dob || req.body.location || req.body.link) {
       user.description = {
-        about: req.body.about || '',
-        dob: req.body.dob || '',
-        location: req.body.location || '',
-        link: req.body.link ||  '',
+        about: req.body.about || "",
+        dob: req.body.dob || "",
+        location: req.body.location || "",
+        link: req.body.link || "",
       };
     } else {
       // If no description data is provided in req.body, remove the description
       user.description = {
-        about: '',
-        dob:  '',
-        location:  '',
-        link:   '',
+        about: "",
+        dob: "",
+        location: "",
+        link: "",
       };
     }
 
@@ -224,24 +227,21 @@ export const updateUser = async (req, res, next) => {
       if (user.avatar && user.avatar.public_id) {
         await cloudinary.v2.uploader.destroy(user.avatar.public_id);
       }
-       else{
-        const fileUri = getDataUri(file);
 
-        // Upload the new avatar to Cloudinary
-        const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
-          folder: "avatars",
-        });
-  
-        user.avatar = {
-          public_id: myCloud.public_id,
-          url: myCloud.secure_url,
-        };
-       }
-     
-    } 
+      const fileUri = getDataUri(file);
 
+      // Upload the new avatar to Cloudinary
+      const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
+        folder: "avatars",
+      });
 
-    await user.save(); // Save the updated user data
+      user.avatar = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+    }
+
+    await user.save();
 
     res.status(200).json({
       success: true,
@@ -256,7 +256,7 @@ export const updateUser = async (req, res, next) => {
 };
 export const deleteAvatar = async (req, res) => {
   try {
-    const user = await User.findById(req.user); 
+    const user = await User.findById(req.user);
 
     if (!user) {
       return res.status(404).json({
@@ -265,7 +265,7 @@ export const deleteAvatar = async (req, res) => {
       });
     }
 
-    let responseMessage = '';  // Variable to hold the response message
+    let responseMessage = ""; // Variable to hold the response message
 
     if (user.avatar && user.avatar.public_id) {
       await cloudinary.v2.uploader.destroy(user.avatar.public_id);
@@ -275,15 +275,15 @@ export const deleteAvatar = async (req, res) => {
     }
 
     user.avatar = {
-      public_id: '',
-      url: 'https://res.cloudinary.com/ddszevvis/image/upload/v1697807048/avatars/Default_Image_oz0haa.png',
+      public_id: "",
+      url: "https://res.cloudinary.com/ddszevvis/image/upload/v1697807048/avatars/Default_Image_oz0haa.png",
     };
 
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: responseMessage,  // Send the response message here
+      message: responseMessage, // Send the response message here
     });
   } catch (error) {
     res.status(500).json({
@@ -293,13 +293,11 @@ export const deleteAvatar = async (req, res) => {
   }
 };
 
-
-
 //get the profile of logined user
 export const getMyProfile = async (req, res, next) => {
   try {
     let user = await User.findById(req.user._id).populate(
-      "posts followers following bookmarks"
+      "posts followers following bookmarks",
     );
     res.status(200).json({
       success: true,
@@ -328,7 +326,7 @@ export const getAllUsers = async (req, res, next) => {
     }
 
     let apiData = User.find(queryObject).populate(
-      "posts followers following bookmarks"
+      "posts followers following bookmarks",
     );
     let page = req.query.page || 1;
     let limit = req.query.limit || 10;
@@ -371,19 +369,9 @@ export const logout = (req, res) => {
     });
 };
 
-
-
 export const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
     const posts = user.posts;
     const followers = user.followers;
     const following = user.following;
@@ -393,6 +381,13 @@ export const deleteUser = async (req, res, next) => {
     if (user.avatar && user.avatar.public_id) {
       await cloudinary.v2.uploader.destroy(user.avatar.public_id);
     }
+
+    await user.deleteOne();
+    res.cookie("token", "", {
+      expires: new Date(Date.now()),
+      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "Development" ? false : true,
+    });
 
     // Removing all the user's posts
     for (let i = 0; i < posts.length; i++) {
@@ -459,21 +454,16 @@ export const deleteUser = async (req, res, next) => {
     for (let i = 0; i < allPosts.length; i++) {
       const post = await Post.findById(allPosts[i]._id);
       if (post.likes.includes(userId)) {
-        post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+        post.likes = post.likes.filter(
+          (id) => id.toString() !== userId.toString(),
+        );
         await post.save();
       }
     }
 
-    await user.deleteOne();
-    res.cookie("token", "", {
-      expires: new Date(Date.now()),
-      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-      secure: process.env.NODE_ENV === "Development" ? false : true,
-    });
-
     res.status(200).json({
       success: true,
-      message: "You account deleted successfully",
+      message: "You account deleted",
     });
   } catch (error) {
     return res.status(500).json({
@@ -483,12 +473,11 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-
 export const getUserbyID = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId).populate(
-      "posts followers following bookmarks"
+      "posts followers following bookmarks",
     );
 
     if (!user) {

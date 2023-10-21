@@ -15,14 +15,14 @@ import {
   getMyPosts,
   getUserPosts,
   deleteAvatar,
-  getMyBookmarks
+  getMyBookmarks,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import singleUpload from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.post("/register",singleUpload, register);
+router.post("/register", singleUpload, register);
 router.post("/verify", verifyOtp);
 router.post("/login", login);
 router.post("/forgetPassword", forgetPassword);
@@ -36,6 +36,6 @@ router.post("/:id", getUserbyID);
 router.route("/me/posts").get(isAuthenticated, getMyPosts);
 router.route("/me/bookmarks").get(isAuthenticated, getMyBookmarks);
 router.route("/posts/:id").get(isAuthenticated, getUserPosts);
-router.get("/deleteAvatar", isAuthenticated, deleteAvatar)
+router.get("/deleteAvatar", isAuthenticated, deleteAvatar);
 
 export default router;

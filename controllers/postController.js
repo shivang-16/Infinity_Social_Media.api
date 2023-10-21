@@ -11,14 +11,14 @@ export const createPost = async (req, res, next) => {
     let image = null;
     if (req.file) {
       const file = req.file;
-      
+
       if (file.size > 10 * 1024 * 1024) {
         return res.status(400).json({
           success: false,
           message: "Maximum file size is 10 MB.",
         });
       }
-     
+
       const fileUri = getDataUri(file);
 
       const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
@@ -54,7 +54,6 @@ export const createPost = async (req, res, next) => {
   }
 };
 
-
 export const getAllPost = async (req, res, next) => {
   try {
     const post = await Post.find().populate("owner likes comments.user");
@@ -80,7 +79,9 @@ export const getAllPost = async (req, res, next) => {
 export const getPostbyId = async (req, res) => {
   try {
     const postId = req.params.id;
-    let post = await Post.findById(postId).populate("owner likes comments.user");
+    let post = await Post.findById(postId).populate(
+      "owner likes comments.user",
+    );
     if (!post) {
       return res.status(400).json({
         success: false,
@@ -131,8 +132,8 @@ export const editPost = async (req, res, next) => {
       });
     }
     const { caption } = req.body;
-    post.caption = caption
-    await post.save()
+    post.caption = caption;
+    await post.save();
     res.status(200).json({
       success: true,
       message: "Post updated successfull",
@@ -201,11 +202,9 @@ export const likes = async (req, res, next) => {
       post.likes = post.likes.filter(
         (likedUserId) => likedUserId.toString() !== user._id.toString(),
       );
-    
     } else {
       // User has not liked the post, so add their ID
       post.likes.unshift(user._id);
-     
     }
 
     await post.save();
@@ -285,40 +284,38 @@ export const comments = async (req, res, next) => {
 
 export const deleteComment = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const postId = req.params.postId;
+    const commentId = req.params.commentId;
+    const userId = req.user._id;
+
+    const post = await Post.findById(postId);
 
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: "Invalid request",
+        message: "Post not found",
       });
     }
 
-    if (post.owner.toString() === req.user._id.toString()) {
-      post.comments.forEach((item, index) => {
-        if (item._id.toString() === req.body.commentId.toString()) {
-          return post.comments.splice(index, 1);
-        }
-      });
-      await post.save();
-      res.status(200).json({
-        success: true,
-        message: "Comment Removed",
-      });
-    } else {
-      post.comments.forEach((item, index) => {
-        if (item.user.toString() === req.user._id.toString()) {
-          return post.comments.splice(index, 1);
-        }
-      });
-      await post.save();
-      res.status(200).json({
-        success: true,
-        message: "comment deleted successfully",
+    const comment = post.comments.find((c) => c._id.toString() === commentId);
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
       });
     }
+
+    post.comments.pull({ _id: commentId });
+
+    await post.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Comment deleted successfully",
+    });
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });

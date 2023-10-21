@@ -27,9 +27,8 @@ router
 
 router.route("/bookmark/:id").get(isAuthenticated, bookmarks);
 router.route("/likes/:id").get(isAuthenticated, likes);
-router
-  .route("/comments/:id")
-  .post(isAuthenticated, comments)
-  .delete(isAuthenticated, deleteComment);
+router.route("/comments/:id").post(isAuthenticated, comments);
+
+router.delete("/:postId/comments/:commentId", isAuthenticated, deleteComment);
 
 export default router;
