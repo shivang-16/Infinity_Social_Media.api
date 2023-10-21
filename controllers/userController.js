@@ -29,7 +29,6 @@ export const register = async (req, res, next) => {
     }
    
     const hashedPassword = await bcrypt.hash(password, 10);
-   console.log(hashedPassword)
 
     //sending the otp with the help of twilio
     let digits = "0123456789";
@@ -52,7 +51,7 @@ export const register = async (req, res, next) => {
     });
     res.status(200).json({
       success: true,
-      message: `Otp sent to ${email}`,
+      message: `Otp sent to your email`,
     });
   } catch (error) {
     return res.status(500).json({
@@ -87,7 +86,7 @@ export const verifyOtp = async (req, res, next) => {
 //Forgot possword
 export const forgetPassword = async (req, res, next) => {
   try {
-    let email = req.user.email;
+    let email = req.body.email;
     let digits = "0123456789";
     OTP = "";
     for (let i = 0; i < 4; i++) {
@@ -101,7 +100,7 @@ export const forgetPassword = async (req, res, next) => {
     });
     res.status(200).json({
       success: true,
-      message: `Password recovery otp sent to ${email}`,
+      message: `Otp sent to your email`,
     });
   } catch (error) {
     return res.status(500).json({
@@ -113,14 +112,14 @@ export const forgetPassword = async (req, res, next) => {
 
 export const changePassword = async (req, res, next) => {
   try {
-    let { otp, newPassword } = req.body;
+    let { otp, newPassword, userName } = req.body;
     if (otp != OTP) {
       return res.status(400).json({
         success: false,
         message: "Invalid Otp",
       });
     }
-    let user = await User.findById(req.user);
+    let user = await User.findOne({userName});
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -258,23 +257,23 @@ export const updateUser = async (req, res, next) => {
 export const deleteAvatar = async (req, res) => {
   try {
     const user = await User.findById(req.user); 
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-  
+
+    let responseMessage = '';  // Variable to hold the response message
 
     if (user.avatar && user.avatar.public_id) {
       await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+      responseMessage = "Avatar deleted";
+    } else {
+      responseMessage = "Avatar not found";
     }
-    else{
-      res.status(400).json({
-        success: false,
-        message: "Avatar not found",
-      });
-    }
+
     user.avatar = {
       public_id: '',
       url: 'https://res.cloudinary.com/ddszevvis/image/upload/v1697807048/avatars/Default_Image_oz0haa.png',
@@ -284,7 +283,7 @@ export const deleteAvatar = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Profile updated",
+      message: responseMessage,  // Send the response message here
     });
   } catch (error) {
     res.status(500).json({
@@ -293,6 +292,7 @@ export const deleteAvatar = async (req, res) => {
     });
   }
 };
+
 
 
 //get the profile of logined user
@@ -359,96 +359,109 @@ export const getAllUsers = async (req, res, next) => {
 };
 
 export const logout = (req, res) => {
-    res
-      .status(200)
-      .cookie("token", "", {
-        expires: new Date(Date.now()),
-        sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-        secure: process.env.NODE_ENV === "Development" ? false : true,
-      })
-      .json({
-        success: true,
-        message: "Logged out Successfully",
-      });
+  res
+    .status(200)
+    .clearCookie("token", {
+      sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "development" ? false : true,
+    })
+    .json({
+      success: true,
+      message: "Logged out Successfully",
+    });
 };
+
+
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user);
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     const posts = user.posts;
     const followers = user.followers;
     const following = user.following;
     const bookmarks = user.bookmarks;
     const userId = user._id;
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "user not found",
-      });
-    }
-
     if (user.avatar && user.avatar.public_id) {
       await cloudinary.v2.uploader.destroy(user.avatar.public_id);
     }
 
-    //removing all the users posts
+    // Removing all the user's posts
     for (let i = 0; i < posts.length; i++) {
       const post = await Post.findById(posts[i]);
-      if (post) { // Check if the post exists
+      if (post) {
         if (post.image && post.image.public_id) {
           await cloudinary.v2.uploader.destroy(post.image.public_id);
         }
-    
+
         await post.deleteOne();
       }
     }
 
-    //removing followers list from user.following
+    // Removing followers list from user.following
     for (let i = 0; i < followers.length; i++) {
-      const follower = await Post.findById(followers[i]);
-      const index = follower.following.indexOf(followers[i]);
-      follower.following.splice(index, 1);
-      await follower.save();
+      const follower = await User.findById(followers[i]);
+      if (follower) {
+        const index = follower.following.indexOf(userId);
+        if (index !== -1) {
+          follower.following.splice(index, 1);
+          await follower.save();
+        }
+      }
     }
 
-    //removing the user from the followers list of following users
+    // Removing the user from the followers list of following users
     for (let i = 0; i < following.length; i++) {
       const follows = await User.findById(following[i]);
-      const index = follows.followers.indexOf(userId);
-      follows.followers.splice(index, 1);
-      await follows.save();
+      if (follows) {
+        const index = follows.followers.indexOf(userId);
+        if (index !== -1) {
+          follows.followers.splice(index, 1);
+          await follows.save();
+        }
+      }
     }
 
-    //removing the bookmarked posts id
+    // Removing the bookmarked posts id
     for (let i = 0; i < bookmarks.length; i++) {
-      const bookmark = await User.findById(bookmarks[i]);
-      const index = bookmark.bookmarks.indexOf(bookmarks[i]);
-      bookmark.bookmarks.splice(index, 1);
-      await bookmark.save();
+      const bookmark = await Post.findById(bookmarks[i]);
+      if (bookmark) {
+        const index = bookmark.bookmarks.indexOf(userId);
+        if (index !== -1) {
+          bookmark.bookmarks.splice(index, 1);
+          await bookmark.save();
+        }
+      }
     }
 
-    //removing all the comments of the user
-    const allPost = await Post.find();
+    // Removing all the comments of the user
+    const allPosts = await Post.find();
 
-    for (let i = 0; i < allPost.length; i++) {
-      const post = await Post.findById(allPost[i]._id);
-      for (let j = 0; j < post.comments.length; j++) {
-        if (post.comments[j].user === userId) {
+    for (let i = 0; i < allPosts.length; i++) {
+      const post = await Post.findById(allPosts[i]._id);
+      for (let j = post.comments.length - 1; j >= 0; j--) {
+        if (post.comments[j].user.toString() === userId.toString()) {
           post.comments.splice(j, 1);
         }
       }
-      post.save();
+      await post.save();
     }
-    //removing all the likes of the user
-    for (let i = 0; i < allPost.length; i++) {
-      const post = await Post.findById(allPost[i]._id);
-      for (let j = 0; j < post.likes.length; j++) {
-        if (post.likes[j] === userId) {
-          post.likes.splice(j, 1);
-        }
+
+    // Removing all the likes of the user
+    for (let i = 0; i < allPosts.length; i++) {
+      const post = await Post.findById(allPosts[i]._id);
+      if (post.likes.includes(userId)) {
+        post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+        await post.save();
       }
-      post.save();
     }
 
     await user.deleteOne();
@@ -460,7 +473,7 @@ export const deleteUser = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "user deleted succesfully",
+      message: "You account deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({
@@ -469,6 +482,7 @@ export const deleteUser = async (req, res, next) => {
     });
   }
 };
+
 
 export const getUserbyID = async (req, res, next) => {
   try {
@@ -489,7 +503,6 @@ export const getUserbyID = async (req, res, next) => {
       user,
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({
       success: false,
       message: error.message,

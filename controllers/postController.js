@@ -174,7 +174,6 @@ export const deletePost = async (req, res, next) => {
       message: "Post deleted successfully",
     });
   } catch (error) {
-    console.log(error)
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -274,7 +273,7 @@ export const comments = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "comment added succesfully",
+      message: "Comment added",
     });
   } catch (error) {
     res.status(500).json({
@@ -304,7 +303,7 @@ export const deleteComment = async (req, res, next) => {
       await post.save();
       res.status(200).json({
         success: true,
-        message: "comment deleted successfully",
+        message: "Comment Removed",
       });
     } else {
       post.comments.forEach((item, index) => {
