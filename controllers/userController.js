@@ -453,9 +453,11 @@ export const deleteUser = async (req, res, next) => {
     // Removing all the likes of the user
     for (let i = 0; i < allPosts.length; i++) {
       const post = await Post.findById(allPosts[i]._id);
-      if (post.likes.includes(userId)) {
+
+      if (post.likes.some((like) => like.toString() === userId)) {
+        // Filter out the like with the given userId from the likes array
         post.likes = post.likes.filter(
-          (id) => id.toString() !== userId.toString(),
+          (likeId) => likeId.toString() !== userId,
         );
         await post.save();
       }
@@ -463,7 +465,7 @@ export const deleteUser = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "You account deleted",
+      message: "Your account deleted",
     });
   } catch (error) {
     return res.status(500).json({
