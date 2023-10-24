@@ -42,7 +42,7 @@ With this backend in place and properly configured, you can build and integrate 
 
 ## API Documentation
 For in-depth details and comprehensive documentation of the API endpoints, you can explore my Postman collection. This collection offers a well-structured and interactive guide to using the Social Media App Backend:
-[#### Social Media App Backend Postman Documentation - ](https://documenter.getpostman.com/view/28918164/2s9YRDyq1z)
+[Social Media App Backend Postman Documentation - ](https://documenter.getpostman.com/view/28918164/2s9YRDyq1z)
 By visiting this documentation, you'll find examples, explanations, and the ability to interact directly with the API endpoints. It's a valuable resource for understanding and testing the capabilities of this backend.
 
 ### For users
