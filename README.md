@@ -24,6 +24,7 @@ These two steps will initiate the backend server, allowing you to access the API
 To run and deploy the backend successfully, you need to configure the following environment variables based on your deployment environment (Development, Preview, Production):
 
 - **FRONTEND_URL:** The URL of the frontend application that will communicate with this backend. For example, during development, use "http://localhost:3000," and when you deploy your frontend, update this variable with the actual frontend URL.
+- **MONGO_URI:** `<your MongoDB uri here>` The URI to connect to your MongoDB database, where user and post data are stored. Since I've used MongoDB in this project, make sure to replace with your actual MongoDB Atlas connection string.
 - **CLOUDINARY_API_KEY:** Your Cloudinary API key for handling image and video uploads.
 - **CLOUDINARY_API_SECRET:** Your Cloudinary API secret for secure access to the Cloudinary service.
 - **CLOUDINARY_CLOUD_NAME:** Your Cloudinary cloud name, identifying your Cloudinary account.
