@@ -1,3 +1,4 @@
+import { Notification } from "../models/notificationModel.js";
 import { User } from "../models/userModel.js";
 
 export const follow = async (req, res, next) => {
@@ -21,6 +22,7 @@ export const follow = async (req, res, next) => {
       });
     }
 
+    let notification;
     // Check if the user is already in the following list
     const isFollowing = user.following.includes(userToFollow._id);
 
@@ -41,6 +43,13 @@ export const follow = async (req, res, next) => {
 
       //push the current user data to the followers list of the user which i followed
       userToFollow.followers.push(user._id);
+
+      notification = await Notification.create({
+        receiver: userToFollow,
+        sender: req.user,
+        tag: "Follow",
+        message: "Followed you",
+      });
     }
 
     await user.save();
@@ -51,6 +60,7 @@ export const follow = async (req, res, next) => {
       message: isFollowing
         ? "Unfollowed successfully"
         : "Followed successfully",
+      notification,
     });
   } catch (error) {
     return res.status(500).json({

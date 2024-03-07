@@ -322,7 +322,7 @@ export const getAllUsers = async (req, res, next) => {
       queryObject.name = { $regex: name, $options: "i" };
     }
     if (userName) {
-      queryObject.userName = { $regex: userName, $options: "i" };
+      queryObject.userName = userName;
     }
 
     let apiData = User.find(queryObject).populate(
@@ -356,10 +356,49 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
+export const getAllSearched = async (req, res) => {
+  try {
+    const { name, userName } = req.query;
+    const queryObject = {};
+
+    if (name) {
+      //full search functionality using regex
+      queryObject.name = { $regex: name, $options: "i" };
+    }
+    if (userName) {
+      queryObject.name = { $regex: userName, $options: "i" };
+    }
+
+    let apiData = User.find(queryObject).populate(
+      "posts followers following bookmarks",
+    );
+
+    let users = await apiData.sort("-name");
+    if (!users) {
+      return res.status(404).json({
+        success: false,
+        message: "No Users found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      users,
+      length: users.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const logout = (req, res) => {
   res
     .status(200)
-    .clearCookie("token", {
+    .cookie("token", "", {
+      expires: new Date(Date.now()),
       sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
       secure: process.env.NODE_ENV === "development" ? false : true,
     })
