@@ -1,15 +1,19 @@
 ### Starting the Server
+
 To start the backend server, follow these steps:
 
 **Step 1: Install Dependencies**
+
 - Run `npm install` to install the required dependencies for the backend.
 
 **Step 2: Start the Server**
+
 - Run `npm start` to launch the server using Nodemon, which automatically restarts the server when changes are made. If you don't have Nodemon installed, you can do so globally by running `npm i -g nodemon`. This will install Nodemon globally on your PC.
 
 These two steps will initiate the backend server, allowing you to access the APIs and services provided by the Social Media App Backend. Ensure that your environment variables are correctly set to enable seamless server operation.
 
 ## Environment Variables
+
 To run and deploy the backend successfully, you need to configure the following environment variables based on your deployment environment (Development, Preview, Production):
 
 - **FRONTEND_URL:** The URL of the frontend application that will communicate with this backend. For example, during development, use "http://localhost:3000," and when you deploy your frontend, update this variable with the actual frontend URL.

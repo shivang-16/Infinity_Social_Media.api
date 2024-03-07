@@ -1,5 +1,6 @@
 import { Post } from "../models/postModel.js";
 import { User } from "../models/userModel.js";
+import { Notification } from "../models/notificationModel.js";
 import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
 
@@ -193,7 +194,7 @@ export const likes = async (req, res, next) => {
     }
 
     let user = await User.findById(req.user._id);
-
+    let notification;
     // Check if the user ID is in the post.likes array
     const isLiked = post.likes.includes(user._id.toString());
 
@@ -205,12 +206,20 @@ export const likes = async (req, res, next) => {
     } else {
       // User has not liked the post, so add their ID
       post.likes.unshift(user._id);
+      notification = await Notification.create({
+        receiver: post.owner,
+        sender: req.user,
+        refPost: post,
+        tag: "Liked",
+        message: "Liked the post",
+      });
     }
 
     await post.save();
     res.status(200).json({
       success: true,
       message: isLiked ? "Post unliked" : "Post liked",
+      notification,
     });
   } catch (error) {
     res.status(500).json({
@@ -230,6 +239,7 @@ export const bookmarks = async (req, res, next) => {
       });
     }
 
+    let notification;
     let user = await User.findById(req.user._id);
     const isBookmarked = user.bookmarks.includes(bookmarkedPost._id.toString());
     if (isBookmarked) {
@@ -238,11 +248,19 @@ export const bookmarks = async (req, res, next) => {
       });
     } else {
       user.bookmarks.unshift(bookmarkedPost._id);
+      notification = await Notification.create({
+        user: bookmarkedPost.owner,
+        sender: req.user,
+        refPost: bookmarkedPost,
+        tag: "Bookmark",
+        message: "Bookmarked you post",
+      });
     }
     await user.save();
     res.status(201).json({
       success: true,
       message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked",
+      notification,
     });
   } catch (error) {
     return res.status(500).json({
@@ -268,11 +286,21 @@ export const comments = async (req, res, next) => {
       user: req.user._id,
       comment,
     });
+
+    const notification = await Notification.create({
+      receiver: post.owner,
+      sender: req.user,
+      refPost: post,
+      tag: "Comment",
+      message: comment,
+    });
+
     await post.save();
 
     res.status(200).json({
       success: true,
       message: "Comment added",
+      notification,
     });
   } catch (error) {
     res.status(500).json({
