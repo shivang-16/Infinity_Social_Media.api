@@ -4,9 +4,9 @@
 
 The Social Media App Backend serves as the core infrastructure for a social networking platform. It provides a comprehensive set of APIs and services for user management, post creation, interaction with posts, and user connections. The backend is designed to be easily deployable on various server platforms, such as Vercel or Netlify, making it accessible for integration into your own website or application.
 
-## GitHub Repository
+## Frontend GitHub Repository of this Project
 
-You can access the source code and project files on the GitHub repository: [Social Media App Backend Repository](https://github.com/shivang-16/Social_Media_App_Backend)
+You can access the source code and project files on the GitHub repository: [Social Media App Frontend Repository](https://github.com/shivang-16/Social_Media_App_Frontend)
 
 ## Deployment and Integration
 
@@ -29,6 +29,7 @@ These two steps will initiate the backend server, allowing you to access the API
 ## Environment Variables
 
 To run and deploy the backend successfully, you need to configure the following environment variables based on your deployment environment (Development, Preview, Production):
+You can edit below enviroment variable in the sample .env file present in the code base.
 
 - **FRONTEND_URL:** The URL of the frontend application that will communicate with this backend. For example, during development, use "http://localhost:3000," and when you deploy your frontend, update this variable with the actual frontend URL.
 - **MONGO_URI:** `<your MongoDB uri here>` The URI to connect to your MongoDB database, where user and post data are stored. Since I've used MongoDB in this project, make sure to replace with your actual MongoDB Atlas connection string.
@@ -49,6 +50,30 @@ These environment variables are crucial for the proper functioning and security 
 With this backend in place and properly configured, you can build and integrate your frontend application to create a fully functional social media platform. Users will be able to register, log in, create and interact with posts, follow/unfollow other users, and more, all powered by this backend infrastructure.
 
 If you want to setup full project in you local then you have to setup frontend. Checkout out frontend repo here - [Social Media App Frontend Repository](https://github.com/shivang-16/Social_Media_App_Frontend)
+
+## Docker Installation
+### Prerequisites
+Before you begin, ensure that you have the following prerequisites installed on your system:
+
+Docker**: [Install Docker](https://docs.docker.com/engine/install/)
+
+Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+#### Clone the Repository:
+`git clone https://github.com/yourusername/SocialMediaApp.git`
+
+#### Environment Configuration:
+Edit the environment variable in the `.env` file in source code
+
+#### Build Docker Images and Start the server:
+`docker-compose up --build` or simply `docker compose up`
+ 
+#### Access the Application:
+Once the containers are up and running, access the backend server at the port you have assigned in you .env file.
+
+#### Stopping the Application
+`docker-compose down`
+
 
 ## API Documentation
 
@@ -218,6 +243,21 @@ In this section, you'll find API endpoints for managing user connections and rel
 - **Endpoint:** `http://localhost:5000/api/v1/follow/{userId}`
 - **Description:** Follow or unfollow a specific user by providing their user ID.
 - **Parameters:** `userId` - The unique user id in the database.
+
+### Notifications
+
+In this section, you'll find API endpoints for notifications
+
+#### GET Get All Notifications
+
+- **Endpoint:** `http://localhost:5000/api/v1/notification/all`
+- **Description:** List all the notifications.
+
+#### GET Change Status
+
+- **Endpoint:** `http://localhost:5000/api/v1/notification/read/{notificationId}`
+- **Description:** Change the unread status of the notification.
+- **Parameters:** `notificationId` - The unique notification id in the database.
 
 I hope this README has provided you with the insights and information you need to get started with the Social Media App Backend.
 
