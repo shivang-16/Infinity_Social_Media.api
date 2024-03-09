@@ -10,7 +10,7 @@ import cors from "cors";
 export const app = express();
 
 config({
-  path: "./data/config.env",
+  path: "./.env",
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

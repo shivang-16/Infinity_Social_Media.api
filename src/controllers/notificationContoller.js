@@ -3,7 +3,7 @@ import { Notification } from "../models/notificationModel.js";
 export const listAllNotification = async (req, res) => {
   try {
     const { status } = req.query;
-    const queryObject = { receiver: req.user._id };
+    const queryObject = { receiver: req.user._id, sender: { $ne: req.user._id } };
 
     if (status) {
       queryObject.unread = status;
