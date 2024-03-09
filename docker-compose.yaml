@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  mongo_db:
+    container_name: mongo_container
+    image: mongo:latest
+    restart: always
+    volumes:
+      - infinity_db:/data/db
+
+  infinity.api:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 
+      MONGO_URI: 
+      JWT_SECRET: 
+      FRONTEND_URL: 
+      SMTP_PORT: 
+      SMTP_USER: 
+      SMTP_SERVICE: 
+      SMTP_PASS: 
+      CLOUDINARY_API_KEY: 
+      CLOUDINARY_API_SECRET: 
+      CLOUDINARY_CLOUD_NAME: 
+      NODE_ENV: 
+
+
+    depends_on:
+      - mongo_db
+
+volumes:
+  infinity_db: {}
