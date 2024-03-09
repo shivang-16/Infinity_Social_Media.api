@@ -60,7 +60,7 @@ Docker**: [Install Docker](https://docs.docker.com/engine/install/)
 Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 #### Clone the Repository:
-`git clone https://github.com/yourusername/SocialMediaApp.git`
+`git clone https://github.com/shivang-16/Social_Media_App_Backend`
 
 #### Environment Configuration:
 Edit the environment variable in the `.env` file in source code
