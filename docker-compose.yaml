@@ -12,21 +12,8 @@ services:
     build: .
     ports:
       - "4000:4000"
-    environment:
-      PORT: 
-      MONGO_URI: 
-      JWT_SECRET: 
-      FRONTEND_URL: 
-      SMTP_PORT: 
-      SMTP_USER: 
-      SMTP_SERVICE: 
-      SMTP_PASS: 
-      CLOUDINARY_API_KEY: 
-      CLOUDINARY_API_SECRET: 
-      CLOUDINARY_CLOUD_NAME: 
-      NODE_ENV: 
-
-
+    env_file:
+      - .env      
     depends_on:
       - mongo_db
 
