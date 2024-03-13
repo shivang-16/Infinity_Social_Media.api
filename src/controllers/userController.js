@@ -115,14 +115,14 @@ export const forgetPassword = async (req, res, next) => {
 
 export const changePassword = async (req, res, next) => {
   try {
-    let { otp, newPassword, userName } = req.body;
+    let { email, otp, newPassword } = req.body;
     if (otp != OTP) {
       return res.status(400).json({
         success: false,
         message: "Invalid Otp",
       });
     }
-    let user = await User.findOne({ userName });
+    let user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -335,7 +335,7 @@ export const getAllUsers = async (req, res, next) => {
     let skip = (page - 1) * limit;
     apiData = apiData.skip(skip).limit(limit);
 
-    let users = await apiData.sort("-name");
+    let users = await apiData.sort("-createdAt");
     if (!users) {
       return res.status(404).json({
         success: false,
