@@ -15,20 +15,13 @@ config({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const corsOptionsDelegate = function (req, callback) {
-  let corsOptions;
-  let isDomainAllowed = req.header('Origin') && req.header('Origin').match(/^https?:\/\/social-media-app\./);
-  let isLocalhostAllowed = req.header('Origin') === 'http://localhost:5173';
-
-  if (isDomainAllowed || isLocalhostAllowed) {
-    corsOptions = { origin: true, credentials: true }; // Reflect (enable) the requested origin in the CORS response
-  } else {
-    corsOptions = { origin: false }; // Disable CORS for this request
-  }
-  callback(null, corsOptions); // Callback expects two parameters: error and options
-};
-
-app.use(cors(corsOptionsDelegate));
+app.use(
+  cors({
+    origin: [process.env.FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  }),
+);
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
