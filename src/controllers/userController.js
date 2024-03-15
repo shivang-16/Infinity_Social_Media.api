@@ -5,8 +5,6 @@ import { sendMail } from "../middlewares/sendOtp.js";
 import bcrypt from "bcrypt";
 import cloudinary from "cloudinary";
 import getDataUri from "../utils/dataUri.js";
-import redisClient from "../utils/redisClient.js";
-import { cacheTime } from "../middlewares/redis.js";
 
 let OTP, user;
 export const register = async (req, res, next) => {
@@ -345,9 +343,6 @@ export const getAllUsers = async (req, res, next) => {
       });
     }
 
-
-    await redisClient.setex(req.path, cacheTime, JSON.stringify({users: users}));
-
     res.status(200).json({
       success: true,
       users,
@@ -557,10 +552,6 @@ export const getMyPosts = async (req, res) => {
       );
       posts.push(post);
     }
-
-
-    await redisClient.setex(req.path, cacheTime, JSON.stringify({posts: posts}));
-
     res.status(200).json({
       success: true,
       posts,
@@ -585,10 +576,6 @@ export const getMyBookmarks = async (req, res) => {
       );
       posts.push(bookmark);
     }
-
-
-    await redisClient.setex(req.path, cacheTime, JSON.stringify({posts: posts}));
-
     res.status(200).json({
       success: true,
       posts,
