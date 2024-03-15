@@ -20,6 +20,7 @@ import {
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import singleUpload from "../middlewares/multer.js";
+import cacheMiddleware from "../middlewares/redis.js";
 
 const router = express.Router();
 
@@ -32,11 +33,11 @@ router.get("/myProfile", isAuthenticated, getMyProfile);
 router.get("/logout", logout);
 router.patch("/update", isAuthenticated, singleUpload, updateUser);
 router.delete("/delete", isAuthenticated, deleteUser);
-router.get("/all", getAllUsers);
+router.get("/allusers", cacheMiddleware ,getAllUsers);
 router.get("/search", getAllSearched);
 router.post("/:id", getUserbyID);
-router.route("/me/posts").get(isAuthenticated, getMyPosts);
-router.route("/me/bookmarks").get(isAuthenticated, getMyBookmarks);
+router.route("/me/posts").get(isAuthenticated, cacheMiddleware, getMyPosts);
+router.route("/me/bookmarks").get(isAuthenticated, cacheMiddleware, getMyBookmarks);
 router.route("/posts/:id").get(isAuthenticated, getUserPosts);
 router.get("/deleteAvatar", isAuthenticated, deleteAvatar);
 
