@@ -14,16 +14,16 @@ cloudinary.config({
 connectToDB();
 export const redisClient = connectToRedis()
 
-app.get('/redis-status', async (req, res) => {
-  try {
-      // Attempt a simple command to check if Redis is connected
-      await redisClient.ping();
-      res.json({ success: true, message: 'Redis is connected' });
-  } catch (error) {
-      console.error('Redis error:', error);
-      res.json({ success: false, message: 'Redis is not connected' });
-  }
-});
+// app.get('/redis-status', async (req, res) => {
+//   try {
+//       // Attempt a simple command to check if Redis is connected
+//       await redisClient.ping();
+//       res.json({ success: true, message: 'Redis is connected' });
+//   } catch (error) {
+//       console.error('Redis error:', error);
+//       res.json({ success: false, message: 'Redis is not connected' });
+//   }
+// });
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });

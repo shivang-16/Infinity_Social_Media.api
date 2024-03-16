@@ -40,11 +40,5 @@ app.use("/api/v1/follow", followRouter);
 app.use("/api/v1/notification", notificationRouter);
 
 app.get("/", (req, res) => {
-  try {
-    res.send("Server is working fine");
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message
-    })
-  }
+  res.send("Server is working fine");
 });
