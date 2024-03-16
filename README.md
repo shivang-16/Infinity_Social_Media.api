@@ -31,8 +31,8 @@ These two steps will initiate the backend server, allowing you to access the API
 To run and deploy the backend successfully, you need to configure the following environment variables based on your deployment environment (Development, Preview, Production):
 You can edit below enviroment variable in the sample .env file present in the code base.
 
-- **FRONTEND_URL:** The URL of the frontend application that will communicate with this backend. For example, during development, use "http://localhost:3000," and when you deploy your frontend, update this variable with the actual frontend URL.
-- **MONGO_URI:** `<your MongoDB uri here>` The URI to connect to your MongoDB database, where user and post data are stored. Since I've used MongoDB in this project, make sure to replace with your actual MongoDB Atlas connection string.
+- **MONGO_URI:** `<your MongoDB uri here>` The URI to connect to your MongoDB database, for running locally you can set `mongodb://localhost:27017` in production enter your MognoDB Altas uri.
+And if you are using docker installation then use `mongodb://mongo_db:2717`
 - **CLOUDINARY_API_KEY:** Your Cloudinary API key for handling image and video uploads.
 - **CLOUDINARY_API_SECRET:** Your Cloudinary API secret for secure access to the Cloudinary service.
 - **CLOUDINARY_CLOUD_NAME:** Your Cloudinary cloud name, identifying your Cloudinary account.
@@ -63,7 +63,8 @@ Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/insta
 `git clone https://github.com/shivang-16/Social_Media_App_Backend`
 
 #### Environment Configuration:
-Edit the environment variable in the `.env` file in source code
+Edit the environment variable in the `.env` file in source code.
+Note- For docker installation use `mongodb://mongo_db:2717` as local MONGO_URI
 
 #### Build Docker Images and Start the server:
 `docker-compose up --build` or simply `docker compose up`
@@ -80,6 +81,11 @@ Once the containers are up and running, access the backend server at the port yo
 For in-depth details and comprehensive documentation of the API endpoints, you can explore my Postman collection. This collection offers a well-structured and interactive guide to using the Social Media App Backend:
 [Social Media App Backend Postman Documentation - ](https://documenter.getpostman.com/view/28918164/2s9YRDyq1z)  
 By visiting this documentation, you'll find examples, explanations, and the ability to interact directly with the API endpoints. It's a valuable resource for understanding and testing the capabilities of this backend.
+
+### To check Redis status 
+
+- **Endpoint:** `http://localhost:5000/redis-status`
+- **Description:** Shows the redis-status wheather it is connected or not.
 
 ### For users
 
