@@ -1,4 +1,4 @@
-import { redisClient } from "../server.js";
+import redisClient from "../utils/redisClient.js";
 
 export const cacheTime = 120
 

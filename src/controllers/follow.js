@@ -1,6 +1,6 @@
 import { Notification } from "../models/notificationModel.js";
 import { User } from "../models/userModel.js";
-import { redisClient } from "../server.js";
+import redisClient from "../utils/redisClient.js";
 
 export const follow = async (req, res, next) => {
   try {

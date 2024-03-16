@@ -5,7 +5,7 @@ import { sendMail } from "../middlewares/sendOtp.js";
 import bcrypt from "bcrypt";
 import cloudinary from "cloudinary";
 import getDataUri from "../utils/dataUri.js";
-import { redisClient } from "../server.js";
+import redisClient from "../utils/redisClient.js";
 import { cacheTime } from "../middlewares/redis.js";
 
 let OTP, user;

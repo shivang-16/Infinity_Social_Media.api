@@ -3,8 +3,8 @@ import { User } from "../models/userModel.js";
 import { Notification } from "../models/notificationModel.js";
 import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
-import { redisClient } from "../server.js";
 import { cacheTime } from "../middlewares/redis.js";
+import redisClient from "../utils/redisClient.js";
 
 export const createPost = async (req, res, next) => {
   try {
