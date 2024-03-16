@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config(); 
 import Redis from 'ioredis'
 
 let redis;
@@ -13,6 +15,6 @@ export const connectToRedis = () => {
     });
 }
 
-
+connectToRedis()
 
 export default redis;
