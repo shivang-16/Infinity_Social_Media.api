@@ -3,6 +3,8 @@ import { User } from "../models/userModel.js";
 import { Notification } from "../models/notificationModel.js";
 import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
+import { redisClient } from "../server.js";
+import { cacheTime } from "../middlewares/redis.js";
 
 export const createPost = async (req, res, next) => {
   try {
@@ -43,6 +45,8 @@ export const createPost = async (req, res, next) => {
     user.posts.unshift(post._id);
     await user.save();
 
+    await redisClient.del('/allposts', '/me/posts');
+
     res.status(201).json({
       success: true,
       message: "Post added successfully",
@@ -64,7 +68,7 @@ export const getAllPost = async (req, res, next) => {
         message: "Error in fetching post",
       });
     }
-
+    await redisClient.setex(req.path, cacheTime, JSON.stringify({post: post}));
     res.status(200).json({
       success: true,
       post,
@@ -110,6 +114,9 @@ export const getPostofFollowings = async (req, res) => {
         $in: user.following,
       },
     }).populate("owner likes comments.user");
+
+
+    await redisClient.setex(req.path, cacheTime, JSON.stringify({ posts: posts.reverse()}));
 
     res.status(200).json({
       success: true,
@@ -216,6 +223,9 @@ export const likes = async (req, res, next) => {
     }
 
     await post.save();
+
+    await redisClient.del('/allposts', '/me/posts', '/following');
+
     res.status(200).json({
       success: true,
       message: isLiked ? "Post unliked" : "Post liked",
@@ -257,6 +267,9 @@ export const bookmarks = async (req, res, next) => {
       });
     }
     await user.save();
+
+    await redisClient.del('/me/bookmarks');
+
     res.status(201).json({
       success: true,
       message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked",
