@@ -6,6 +6,7 @@ import notificationRouter from "./Routers/notificationRouter.js";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import cors from "cors";
+import redisClient from "./utils/redisClient.js";
 
 export const app = express();
 
@@ -31,3 +32,15 @@ app.use("/api/v1/notification", notificationRouter);
 app.get("/", (req, res) => {
   res.send("Server is working fine");
 });
+
+app.get('/redis-status', async (req, res) => {
+  try {
+      // Attempt a simple command to check if Redis is connected
+      await redisClient.ping();
+      res.json({ success: true, message: 'Redis is connected' });
+  } catch (error) {
+      console.error('Redis error:', error);
+      res.json({ success: false, message: 'Redis is not connected' });
+  }
+});
+
