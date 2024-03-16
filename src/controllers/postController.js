@@ -3,8 +3,6 @@ import { User } from "../models/userModel.js";
 import { Notification } from "../models/notificationModel.js";
 import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
-import { redisClient } from "../server.js";
-import { cacheTime } from "../middlewares/redis.js";
 
 export const createPost = async (req, res, next) => {
   try {
@@ -45,14 +43,6 @@ export const createPost = async (req, res, next) => {
     user.posts.unshift(post._id);
     await user.save();
 
-
-    try {
-      await redisClient.del('/allposts', '/me/posts');
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
- 
-
     res.status(201).json({
       success: true,
       message: "Post added successfully",
@@ -75,13 +65,6 @@ export const getAllPost = async (req, res, next) => {
       });
     }
 
-
-    try {
-      await redisClient.setex(req.path, cacheTime, JSON.stringify({post: post}));
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
- 
     res.status(200).json({
       success: true,
       post,
@@ -127,13 +110,6 @@ export const getPostofFollowings = async (req, res) => {
         $in: user.following,
       },
     }).populate("owner likes comments.user");
-
-
-    try {
-      await redisClient.setex(req.path, cacheTime, JSON.stringify({ posts: posts }));
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
 
     res.status(200).json({
       success: true,
@@ -240,14 +216,6 @@ export const likes = async (req, res, next) => {
     }
 
     await post.save();
-
-    try {
-      await redisClient.del('/allposts', '/me/posts', '/following');
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
- 
-
     res.status(200).json({
       success: true,
       message: isLiked ? "Post unliked" : "Post liked",
@@ -289,15 +257,6 @@ export const bookmarks = async (req, res, next) => {
       });
     }
     await user.save();
-
-
-    try {
-      await redisClient.del('/me/bookmarks');
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
- 
-
     res.status(201).json({
       success: true,
       message: isBookmarked ? "Bookmarked remove" : "Post Bookmarked",

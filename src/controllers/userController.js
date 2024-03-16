@@ -5,8 +5,6 @@ import { sendMail } from "../middlewares/sendOtp.js";
 import bcrypt from "bcrypt";
 import cloudinary from "cloudinary";
 import getDataUri from "../utils/dataUri.js";
-import { redisClient } from "../server.js";
-import { cacheTime } from "../middlewares/redis.js";
 
 let OTP, user;
 export const register = async (req, res, next) => {
@@ -345,9 +343,6 @@ export const getAllUsers = async (req, res, next) => {
       });
     }
 
-
-    // await redisClient.setex(req.path, cacheTime, JSON.stringify({users: users}));
-
     res.status(200).json({
       success: true,
       users,
@@ -545,32 +540,6 @@ export const getUserbyID = async (req, res, next) => {
   }
 };
 
-export const getUserbyName = async (req, res, next) => {
-  try {
-
-    const user = await User.findOne({userName: req.params.username}).populate(
-      "posts followers following bookmarks",
-    );
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
 export const getMyPosts = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -583,15 +552,6 @@ export const getMyPosts = async (req, res) => {
       );
       posts.push(post);
     }
-
-    
-    try {
-      await redisClient.setex(req.path, cacheTime, JSON.stringify({posts: posts}));
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
- 
-
     res.status(200).json({
       success: true,
       posts,
@@ -616,15 +576,6 @@ export const getMyBookmarks = async (req, res) => {
       );
       posts.push(bookmark);
     }
-
-
-    try {
-      await redisClient.setex(req.path, cacheTime, JSON.stringify({posts: posts}));
-    } catch (redisError) {
-      console.error('Failed to cache data in Redis:', redisError);
-    }
- 
-
     res.status(200).json({
       success: true,
       posts,
