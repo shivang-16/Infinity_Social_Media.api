@@ -1,7 +1,6 @@
 import { app } from "./app.js";
 import { connectToDB } from "./data/database.js";
 import cloudinary from "cloudinary";
-import connectToRedis from "./utils/redisClient.js";
 
 const port = process.env.PORT || 4000;
 
@@ -12,7 +11,6 @@ cloudinary.config({
 });
 
 connectToDB();
-export const redisClient = connectToRedis()
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

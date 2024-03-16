@@ -1,6 +1,5 @@
 import { Notification } from "../models/notificationModel.js";
 import { User } from "../models/userModel.js";
-import { redisClient } from "../server.js";
 
 export const follow = async (req, res, next) => {
   try {
@@ -55,8 +54,6 @@ export const follow = async (req, res, next) => {
 
     await user.save();
     await userToFollow.save();
-
-    await redisClient.del('/following');
 
     res.status(200).json({
       success: true,
