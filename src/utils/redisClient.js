@@ -1,10 +1,8 @@
 import Redis from 'ioredis'
 
 let redis;
-export const connectToRedis = () => {
-
+const connectToRedis = () => {
     const redisUri = process.env.REDIS_URI
-    console.log(redisUri)
     redis = new Redis(redisUri);
     redis.on('connect', () => console.log('Connected to Redis!'));
     redis.on('error', (err) => {
@@ -13,6 +11,6 @@ export const connectToRedis = () => {
     });
 }
 
-
+connectToRedis();
 
 export default redis;
