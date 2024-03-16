@@ -17,18 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Check if the origin matches the pattern *.vercel.app
-      if (
-        origin &&
-        (origin.match(/^https?:\/\/(.*\.)?vercel\.app$/) ||
-          origin === "http://localhost:5173")
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   }),
