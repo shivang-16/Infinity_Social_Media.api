@@ -1,5 +1,6 @@
 import { Notification } from "../models/notificationModel.js";
 import { User } from "../models/userModel.js";
+import { redisClient } from "../server.js";
 
 export const follow = async (req, res, next) => {
   try {
@@ -55,6 +56,12 @@ export const follow = async (req, res, next) => {
     await user.save();
     await userToFollow.save();
 
+    try {
+      await redisClient.del('/following');
+    } catch (redisError) {
+      console.error('Failed to cache data in Redis:', redisError);
+    }
+ 
     res.status(200).json({
       success: true,
       message: isFollowing
