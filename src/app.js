@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
   res.send("Server is working fine");
 });
 
-app.get('/redis-status', async (req, res) => {
+app.get('/api/v1/redis-status', async (req, res) => {
   try {
       // Attempt a simple command to check if Redis is connected
       await redisClient.ping();
