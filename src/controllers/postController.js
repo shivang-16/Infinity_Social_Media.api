@@ -22,7 +22,8 @@ export const createPost = async (req, res, next) => {
         });
       }
 
-      const fileUri = getDataUri(file);
+      const fileUri = getDataUri(file); 
+ console.log(fileUri);
 
       const myCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
         folder: "posts",
