@@ -7,7 +7,6 @@ import {
 
 const router = express.Router();
 
-// router.post('/create', isAuthenticated, createNotification)
 router.get("/all", isAuthenticated, listAllNotification);
 router.get("/read/:id", isAuthenticated, changeReadStatus);
 
